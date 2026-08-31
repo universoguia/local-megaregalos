@@ -1,0 +1,2000 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<title>MegaRegalos · Dashboard operativo v0.1.0 · José C. Paz</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="ext-resource-dependency" content="assets/logo-megaregalos.png" />
+<meta name="ext-resource-dependency" content="assets/n01.jpg" />
+<meta name="ext-resource-dependency" content="assets/n02.jpg" />
+<meta name="ext-resource-dependency" content="assets/n03.jpg" />
+<meta name="ext-resource-dependency" content="assets/n04.jpg" />
+<meta name="ext-resource-dependency" content="assets/n05.jpg" />
+<meta name="ext-resource-dependency" content="assets/n06.jpg" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  x-dc:not(:defined) { display: none; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #F4F1F6; font-family: Figtree, system-ui, sans-serif; color: #1E1A21; -webkit-font-smoothing: antialiased; }
+  a { color: #7B1FA2; text-decoration: none; }
+  a:hover { color: #5C1580; text-decoration: underline; }
+  input, button, select, textarea { font-family: inherit; }
+  button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible { outline: 3px solid #FFC629; outline-offset: 2px; }
+  ::placeholder { color: #8B8291; }
+  .mr-sc::-webkit-scrollbar { width: 9px; height: 9px; }
+  .mr-sc::-webkit-scrollbar-thumb { background: #DDD6E3; border-radius: 8px; }
+  .mr-sc::-webkit-scrollbar-track { background: transparent; }
+  @keyframes mrIn { from { opacity: 0; transform: translateX(24px) } to { opacity: 1; transform: none } }
+  @keyframes mrToast { from { opacity: 0; transform: translate(-50%, 14px) } to { opacity: 1; transform: translate(-50%, 0) } }
+  @keyframes mrScan { 0% { top: 6% } 50% { top: 90% } 100% { top: 6% } }
+</style>
+</helmet>
+
+<template id="__bundler_thumbnail"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#3B0A4A"></rect><rect x="22" y="30" width="24" height="16" rx="3" fill="#FFC629"></rect><rect x="52" y="30" width="26" height="16" rx="3" fill="#8CC63F"></rect><rect x="22" y="52" width="56" height="6" rx="3" fill="#7B1FA2"></rect><rect x="22" y="63" width="56" height="6" rx="3" fill="#7B1FA2"></rect><text x="50" y="24" font-family="sans-serif" font-size="11" font-weight="700" fill="#ffffff" text-anchor="middle">MR</text></svg></template>
+
+<sc-if value="{{ isLogin }}" hint-placeholder-val="{{ true }}">
+<div style="display:grid;grid-template-columns:{{ loginCols }};min-height:100vh;background:#F4F1F6">
+
+  <div style="background:#3B0A4A;color:#EFE3F5;padding:{{ loginAsidePad }};display:flex;flex-direction:column;gap:{{ loginAsideGap }};justify-content:center">
+    <img src="assets/logo-megaregalos.png" alt="MegaRegalos" style="height:46px;width:auto;align-self:flex-start;filter:brightness(0) invert(1)" />
+    <div>
+      <div style="font-size:11.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#FFC629">Dashboard operativo</div>
+      <h1 style="margin:10px 0 0;font-family:Outfit,sans-serif;font-size:{{ loginTitleSize }};font-weight:700;letter-spacing:-.02em;line-height:1.15;color:#ffffff;text-wrap:pretty">{{ branchName }}</h1>
+      <p style="margin:10px 0 0;font-size:14.5px;line-height:1.6;color:#C7A9D4;max-width:44ch;text-wrap:pretty">{{ branchAddr }} · pedidos, productos, inventario y clientes del local en una sola pantalla.</p>
+    </div>
+    <div style="display:flex;align-items:center;gap:9px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.16);border-radius:20px;padding:7px 13px;align-self:flex-start">
+      <span style="width:8px;height:8px;border-radius:50%;background:#FFC629;display:block"></span>
+      <span style="font-size:12.5px;font-weight:700;color:#EFE3F5">Modo demo · datos de prueba, sin backend real</span>
+    </div>
+  </div>
+
+  <div style="display:flex;align-items:center;justify-content:center;padding:{{ loginFormPad }}">
+    <div style="width:100%;max-width:404px;display:flex;flex-direction:column;gap:18px">
+
+      <div>
+        <h2 style="margin:0;font-family:Outfit,sans-serif;font-size:24px;font-weight:700;letter-spacing:-.02em">Ingresar al panel</h2>
+        <p style="margin:6px 0 0;font-size:13.5px;color:#6B6270;line-height:1.5">Usá un acceso demo o tus credenciales de prueba.</p>
+      </div>
+
+      <sc-if value="{{ showDemoPanel }}" hint-placeholder-val="{{ true }}">
+      <div style="background:#ffffff;border:1px solid #E6E1EA;border-radius:16px;padding:16px 17px;display:flex;flex-direction:column;gap:10px">
+        <div style="font-size:11px;font-weight:800;color:#6B6270;text-transform:uppercase;letter-spacing:.06em">Accesos demo · entran directo</div>
+        <sc-for list="{{ demoAccounts }}" as="a" hint-placeholder-count="3">
+          <button onClick="{{ a.go }}" disabled="{{ authLoading }}" style="border:0;background:{{ a.bg }};color:{{ a.ink }};border-radius:12px;padding:12px 14px;cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:3px;width:100%" style-hover="filter:brightness(1.1)">
+            <span style="font-size:14.5px;font-weight:800">{{ a.label }}</span>
+            <span style="font-size:12px;opacity:.82;line-height:1.4;text-wrap:pretty">{{ a.desc }}</span>
+          </button>
+        </sc-for>
+      </div>
+      </sc-if>
+
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="flex:1;height:1px;background:#E6E1EA;display:block"></span>
+        <span style="font-size:12px;font-weight:700;color:#8B8291">o con email</span>
+        <span style="flex:1;height:1px;background:#E6E1EA;display:block"></span>
+      </div>
+
+      <form onSubmit="{{ onLoginSubmit }}" style="background:#ffffff;border:1px solid #E6E1EA;border-radius:16px;padding:17px;display:flex;flex-direction:column;gap:13px">
+        <label style="display:flex;flex-direction:column;gap:6px">
+          <span style="font-size:12.5px;font-weight:700;color:#4A4350">Email</span>
+          <input type="email" value="{{ email }}" onInput="{{ onEmail }}" placeholder="admin@megaregalos.demo" autoComplete="username" style="height:44px;border:1px solid #E6E1EA;border-radius:11px;padding:0 12px;font-size:14.5px;color:#1E1A21;background:#FAF8FB;outline:none" />
+        </label>
+        <label style="display:flex;flex-direction:column;gap:6px">
+          <span style="font-size:12.5px;font-weight:700;color:#4A4350">Contraseña</span>
+          <span style="display:flex;align-items:center;gap:6px;border:1px solid #E6E1EA;border-radius:11px;background:#FAF8FB;padding-right:6px">
+            <input type="{{ passType }}" value="{{ password }}" onInput="{{ onPassword }}" placeholder="••••••••" autoComplete="current-password" style="flex:1;min-width:0;height:44px;border:0;background:transparent;border-radius:11px;padding:0 12px;font-size:14.5px;color:#1E1A21;outline:none" />
+            <button type="button" onClick="{{ togglePass }}" style="border:0;background:#F4F1F6;color:#7B1FA2;font-size:12.5px;font-weight:700;border-radius:8px;padding:7px 10px;cursor:pointer;flex:0 0 auto" style-hover="background:#F3F0FA">{{ passToggleLabel }}</button>
+          </span>
+        </label>
+        <sc-if value="{{ hasAuthError }}" hint-placeholder-val="{{ false }}">
+          <div role="alert" style="background:#FDECEA;border:1px solid #F1C9C4;border-radius:11px;padding:11px 13px;font-size:13px;font-weight:700;color:#8C1E17;line-height:1.45;text-wrap:pretty">{{ authError }}</div>
+        </sc-if>
+        <button type="submit" disabled="{{ authLoading }}" style="border:0;background:#7B1FA2;color:#ffffff;font-size:15px;font-weight:700;border-radius:11px;padding:13px 16px;cursor:pointer" style-hover="background:#5C1580">{{ submitLabel }}</button>
+        <div style="font-size:12px;color:#6B6270;line-height:1.5;text-wrap:pretty">Credenciales demo: admin@ / encargado@ / empleado@megaregalos.demo · contraseña <strong style="color:#4A4350">{{ demoPassword }}</strong></div>
+      </form>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isApp }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;min-height:100vh;background:#F4F1F6">
+
+  <aside style="width:{{ sidebarW }};flex:0 0 auto;background:#3B0A4A;color:#EFE3F5;display:flex;flex-direction:column;gap:4px;padding:16px 12px;position:sticky;top:0;height:100vh;transition:width .18s ease">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:2px 4px 14px">
+      <sc-if value="{{ expanded }}" hint-placeholder-val="{{ true }}">
+        <img src="assets/logo-megaregalos.png" alt="MegaRegalos" style="height:34px;width:auto;display:block;filter:brightness(0) invert(1)" />
+      </sc-if>
+      <button onClick="{{ toggleSidebar }}" aria-label="Colapsar menú" style="border:0;background:rgba(255,255,255,.09);color:#EFE3F5;border-radius:9px;width:32px;height:32px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex:0 0 auto" style-hover="background:rgba(255,255,255,.2)">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"></path></svg>
+      </button>
+    </div>
+
+    <sc-for list="{{ navItems }}" as="it" hint-placeholder-count="8">
+      <button onClick="{{ it.go }}" title="{{ it.label }}" style="display:flex;align-items:center;gap:12px;width:100%;border:0;cursor:pointer;padding:10px 11px;border-radius:10px;font-size:14px;font-weight:600;text-align:left;background:{{ it.bg }};color:{{ it.ink }}" style-hover="background:rgba(255,255,255,.12)">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="flex:0 0 auto"><path d="{{ it.d }}"></path></svg>
+        <sc-if value="{{ it.showLabel }}" hint-placeholder-val="{{ true }}">
+          <span style="flex:1;white-space:nowrap;overflow:hidden">{{ it.label }}</span>
+        </sc-if>
+        <sc-if value="{{ it.showBadge }}" hint-placeholder-val="{{ false }}">
+          <span style="background:#FFC629;color:#3B0A4A;font-size:11.5px;font-weight:800;border-radius:20px;padding:2px 7px;min-width:22px;text-align:center;flex:0 0 auto">{{ it.badge }}</span>
+        </sc-if>
+      </button>
+    </sc-for>
+
+    <div style="margin-top:auto;padding:12px 8px 4px;border-top:1px solid rgba(255,255,255,.12)">
+      <sc-if value="{{ expanded }}" hint-placeholder-val="{{ true }}">
+        <div style="font-size:11.5px;line-height:1.5;color:#B79BC4">
+          Dashboard operativo<br />
+          <strong style="color:#EFE3F5;font-weight:700">v0.1.0</strong> · datos de prueba
+        </div>
+      </sc-if>
+    </div>
+  </aside>
+
+  <div style="flex:1;min-width:0;display:flex;flex-direction:column">
+
+    <header style="position:sticky;top:0;z-index:30;background:#ffffff;border-bottom:1px solid #E6E1EA;padding:{{ headPad }};display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;gap:9px;background:#F4F1F6;border:1px solid #E6E1EA;border-radius:11px;padding:0 12px;height:42px;flex:1;min-width:{{ searchMin }};max-width:460px">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#6B6270" stroke-width="2.2" style="flex:0 0 auto"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg>
+        <input ref="{{ searchRef }}" value="{{ q }}" onInput="{{ onSearch }}" placeholder="Buscar pedido, cliente o DNI…" aria-label="Buscador global" style="flex:1;border:0;background:transparent;outline:none;font-size:14.5px;color:#1E1A21;min-width:0" />
+        <span style="flex:0 0 auto;font-size:11px;font-weight:700;color:#6B6270;background:#ffffff;border:1px solid #E6E1EA;border-radius:6px;padding:3px 6px;letter-spacing:.02em">Ctrl+K</span>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-left:auto">
+        <label style="display:flex;align-items:center;gap:8px;background:#FFF6E0;border:1px solid #F2DFA6;border-radius:11px;height:42px;padding:0 12px">
+          <span style="width:8px;height:8px;border-radius:50%;background:#FFC629;display:block"></span>
+          <span style="font-size:11.5px;font-weight:800;color:#7A5300;text-transform:uppercase;letter-spacing:.06em">Modo demo</span>
+        </label>
+
+        <div style="display:flex;align-items:center;gap:10px;background:#ffffff;border:1px solid #E6E1EA;border-radius:11px;height:42px;padding:0 6px 0 10px">
+          <span style="width:28px;height:28px;border-radius:50%;background:#F3F0FA;color:#7B1FA2;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;flex:0 0 auto">{{ sessionInitials }}</span>
+          <sc-if value="{{ showUserText }}" hint-placeholder-val="{{ true }}">
+          <span style="display:flex;flex-direction:column;line-height:1.2">
+            <strong style="font-size:13px;font-weight:700">{{ sessionName }}</strong>
+            <span style="font-size:11.5px;color:#6B6270">{{ sessionRole }}</span>
+          </span>
+          </sc-if>
+          <button onClick="{{ signOut }}" style="border:0;background:#F4F1F6;color:#7B1FA2;font-size:12.5px;font-weight:700;border-radius:8px;padding:8px 11px;cursor:pointer;flex:0 0 auto" style-hover="background:#F3F0FA">Cerrar sesión</button>
+        </div>
+
+        <button onClick="{{ goAlerts }}" aria-label="Alertas operativas" style="position:relative;width:42px;height:42px;border:1px solid #E6E1EA;background:#ffffff;border-radius:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#3B0A4A" style-hover="border-color:#7B1FA2">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M18 9a6 6 0 10-12 0c0 5-2 6-2 6h16s-2-1-2-6M10.5 20a2 2 0 003 0"></path></svg>
+          <span style="position:absolute;top:-6px;right:-6px;background:#FFC629;color:#3B0A4A;font-size:11px;font-weight:800;border-radius:20px;min-width:20px;height:20px;display:flex;align-items:center;justify-content:center;border:2px solid #ffffff;padding:0 4px">{{ alertCount }}</span>
+        </button>
+      </div>
+    </header>
+
+    <div style="padding:{{ ctxPad }};display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <span style="font-size:12.5px;color:#6B6270">Contexto:</span>
+      <span style="font-size:12.5px;font-weight:700;color:#7B1FA2;background:#F3F0FA;border:1px solid #E3D6EB;border-radius:20px;padding:4px 11px">{{ roleLabel }}</span>
+      <span style="font-size:12.5px;font-weight:700;color:#3B0A4A;background:#ffffff;border:1px solid #E6E1EA;border-radius:20px;padding:4px 11px">{{ scopeLabel }}</span>
+      <sc-if value="{{ scopeLocked }}" hint-placeholder-val="{{ false }}">
+        <span style="font-size:12px;color:#6B6270">Actor simulado con sucursal asignada: los permisos se aplican sobre ella</span>
+      </sc-if>
+      <span style="font-size:11.5px;font-weight:700;color:#7A5300;background:#FFF6E0;border:1px solid #F2DFA6;border-radius:20px;padding:4px 10px;margin-left:auto">{{ clockTag }}</span>
+    </div>
+
+    <sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
+      <main style="padding:{{ mainPad }};display:flex;flex-direction:column;gap:18px">
+
+        <div style="display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap">
+          <h1 style="margin:0;font-family:Outfit,sans-serif;font-size:27px;font-weight:700;letter-spacing:-.02em">Panel de inicio operacional</h1>
+          <span style="font-size:13px;color:#6B6270">{{ todayLabel }}</span>
+        </div>
+
+        <section style="background:#ffffff;border:1px solid #E6E1EA;border-radius:16px;padding:16px 18px">
+          <div style="display:flex;align-items:center;gap:9px;margin-bottom:13px">
+            <span style="width:7px;height:7px;border-radius:50%;background:#FFC629;display:block"></span>
+            <h2 style="margin:0;font-family:Outfit,sans-serif;font-size:15px;font-weight:700;letter-spacing:.01em">Acciones urgentes</h2>
+            <span style="font-size:12.5px;color:#6B6270">Requieren decisión ahora</span>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(288px,1fr));gap:12px">
+            <sc-for list="{{ alerts }}" as="a" hint-placeholder-count="3">
+              <div style="display:flex;gap:12px;align-items:flex-start;border:1px solid {{ a.border }};background:{{ a.bg }};border-radius:13px;padding:13px 14px">
+                <span style="width:32px;height:32px;border-radius:9px;background:#ffffff;border:1px solid {{ a.border }};display:flex;align-items:center;justify-content:center;flex:0 0 auto;color:{{ a.ink }}">
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="{{ a.d }}"></path></svg>
+                </span>
+                <div style="flex:1;min-width:0">
+                  <div style="font-size:14px;font-weight:700;line-height:1.35;text-wrap:pretty">{{ a.title }}</div>
+                  <div style="font-size:12.5px;color:#6B6270;margin-top:3px;line-height:1.4">{{ a.sub }}</div>
+                  <button onClick="{{ a.go }}" style="margin-top:10px;border:0;background:{{ a.ink }};color:#ffffff;font-size:13px;font-weight:700;border-radius:9px;padding:7px 13px;cursor:pointer" style-hover="filter:brightness(1.12)">{{ a.cta }}</button>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </section>
+
+        <section style="display:grid;grid-template-columns:repeat(auto-fit,minmax(196px,1fr));gap:12px">
+          <sc-for list="{{ kpis }}" as="k" hint-placeholder-count="6">
+            <div style="background:#ffffff;border:1px solid #E6E1EA;border-radius:14px;padding:15px 16px">
+              <div style="font-size:11.5px;font-weight:700;color:#6B6270;text-transform:uppercase;letter-spacing:.06em">{{ k.label }}</div>
+              <div style="font-family:Outfit,sans-serif;font-size:26px;font-weight:700;letter-spacing:-.02em;margin-top:7px;color:{{ k.ink }}">{{ k.value }}</div>
+              <div style="font-size:12.5px;color:#6B6270;margin-top:3px">{{ k.sub }}</div>
+            </div>
+          </sc-for>
+        </section>
+
+        <section style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px">
+          <div style="background:#3B0A4A;color:#EFE3F5;border-radius:16px;padding:18px">
+            <div style="font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#C7A9D4">Embudo operativo</div>
+            <div style="display:flex;flex-direction:column;gap:11px;margin-top:14px">
+              <sc-for list="{{ funnel }}" as="f" hint-placeholder-count="5">
+                <button onClick="{{ f.go }}" style="border:0;background:none;padding:0;cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:6px" style-hover="opacity:.85">
+                  <span style="display:flex;justify-content:space-between;gap:12px;font-size:13.5px;font-weight:600;color:#EFE3F5">{{ f.label }}<strong style="font-family:Outfit,sans-serif;font-weight:700">{{ f.n }}</strong></span>
+                  <span style="display:block;height:7px;border-radius:6px;background:rgba(255,255,255,.14);overflow:hidden">
+                    <span style="display:block;height:7px;border-radius:6px;background:{{ f.color }};width:{{ f.w }}"></span>
+                  </span>
+                </button>
+              </sc-for>
+            </div>
+          </div>
+
+          <div style="background:#ffffff;border:1px solid #E6E1EA;border-radius:16px;padding:18px">
+            <div style="font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#6B6270">Local</div>
+            <div style="font-family:Outfit,sans-serif;font-size:19px;font-weight:700;margin-top:8px;letter-spacing:-.01em">{{ branchName }}</div>
+            <div style="font-size:13px;color:#6B6270;margin-top:4px">{{ branchAddr }}</div>
+            <div style="font-size:12.5px;color:#6B6270;margin-top:12px;line-height:1.5;text-wrap:pretty">Operación de un solo local. Todos los pedidos, el stock y los clientes de esta demo corresponden a esta sucursal.</div>
+          </div>
+        </section>
+      </main>
+    </sc-if>
+
+    <sc-if value="{{ isOrders }}" hint-placeholder-val="{{ false }}">
+      <main style="padding:{{ mainPad }};display:flex;flex-direction:column;gap:14px">
+        <div style="display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap">
+          <h1 style="margin:0;font-family:Outfit,sans-serif;font-size:27px;font-weight:700;letter-spacing:-.02em">Pedidos</h1>
+          <span style="font-size:13px;color:#6B6270">{{ resultLabel }}</span>
+        </div>
+
+        <div style="display:flex;gap:7px;flex-wrap:wrap;border-bottom:1px solid #E6E1EA;padding-bottom:12px">
+          <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="6">
+            <button onClick="{{ t.go }}" style="border:1px solid {{ t.border }};background:{{ t.bg }};color:{{ t.ink }};font-size:13.5px;font-weight:700;border-radius:10px;padding:8px 13px;cursor:pointer;display:flex;align-items:center;gap:7px" style-hover="border-color:#7B1FA2">
+              {{ t.label }}
+              <span style="font-size:11.5px;font-weight:800;background:{{ t.pillBg }};color:{{ t.pillInk }};border-radius:20px;padding:1px 7px">{{ t.n }}</span>
+            </button>
+          </sc-for>
+        </div>
+
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+          <div style="display:flex;background:#ffffff;border:1px solid #E6E1EA;border-radius:10px;padding:3px;gap:3px">
+            <sc-for list="{{ deliveryFilters }}" as="d" hint-placeholder-count="3">
+              <button onClick="{{ d.go }}" style="border:0;background:{{ d.bg }};color:{{ d.ink }};font-size:13px;font-weight:600;border-radius:8px;padding:6px 11px;cursor:pointer">{{ d.label }}</button>
+            </sc-for>
+          </div>
+          <select value="{{ payFilter }}" onChange="{{ onPayFilter }}" aria-label="Método de pago" style="height:38px;border:1px solid #E6E1EA;background:#ffffff;border-radius:10px;padding:0 11px;font-size:13.5px;font-weight:600;color:#1E1A21;cursor:pointer">
+            <option value="all">Todos los pagos</option>
+            <option value="mercadopago">Mercado Pago</option>
+            <option value="transfer">Transferencia</option>
+            <option value="card">Tarjeta de crédito</option>
+            <option value="cash">Efectivo en sucursal</option>
+          </select>
+          <select value="{{ dateFilter }}" onChange="{{ onDateFilter }}" aria-label="Rango de fecha" style="height:38px;border:1px solid #E6E1EA;background:#ffffff;border-radius:10px;padding:0 11px;font-size:13.5px;font-weight:600;color:#1E1A21;cursor:pointer">
+            <option value="today">Hoy</option>
+            <option value="7">Últimos 7 días</option>
+            <option value="all">Todo el período</option>
+          </select>
+          <sc-if value="{{ hasFilters }}" hint-placeholder-val="{{ false }}">
+            <button onClick="{{ clearFilters }}" style="border:0;background:none;color:#7B1FA2;font-size:13px;font-weight:700;cursor:pointer;padding:8px 4px">Limpiar filtros</button>
+          </sc-if>
+        </div>
+
+        <div style="background:#ffffff;border:1px solid #E6E1EA;border-radius:16px;overflow:hidden">
+          <div style="overflow-x:auto" class="mr-sc">
+            <div style="min-width:1180px">
+              <div style="display:grid;grid-template-columns:106px 104px 1.5fr 132px 1.6fr 104px 132px 148px 128px;gap:10px;padding:12px 16px;background:#FAF8FB;border-bottom:1px solid #E6E1EA;font-size:11px;font-weight:800;color:#6B6270;text-transform:uppercase;letter-spacing:.05em">
+                <span>Pedido</span><span>Fecha</span><span>Cliente</span><span>Entrega</span><span>Sucursal / dirección</span><span style="text-align:right">Total</span><span>Pago</span><span>Estado</span><span style="text-align:right">Acciones</span>
+              </div>
+              <sc-for list="{{ rows }}" as="r" hint-placeholder-count="6">
+                <div style="display:grid;grid-template-columns:106px 104px 1.5fr 132px 1.6fr 104px 132px 148px 128px;gap:10px;padding:13px 16px;border-bottom:1px solid #F1EDF4;align-items:center;background:{{ r.rowBg }}" style-hover="background:#FBF9FC">
+                  <button onClick="{{ r.open }}" style="border:0;background:none;padding:0;text-align:left;cursor:pointer;font-family:Outfit,sans-serif;font-size:14px;font-weight:700;color:#7B1FA2" style-hover="color:#5C1580">{{ r.id }}</button>
+                  <span style="font-size:12.5px;color:#6B6270;line-height:1.35">{{ r.date }}<br /><strong style="color:#1E1A21;font-weight:600">{{ r.time }}</strong></span>
+                  <span style="min-width:0">
+                    <span style="display:block;font-size:13.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ r.client }}</span>
+                    <span style="display:block;font-size:12px;color:#6B6270">{{ r.phone }}</span>
+                  </span>
+                  <span style="display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;color:{{ r.delInk }};background:{{ r.delBg }};border-radius:8px;padding:5px 8px;justify-self:start">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:0 0 auto"><path d="{{ r.delD }}"></path></svg>
+                    {{ r.delShort }}
+                  </span>
+                  <span style="font-size:12.5px;color:#4A4350;line-height:1.35">{{ r.place }}</span>
+                  <strong style="font-family:Outfit,sans-serif;font-size:14.5px;font-weight:700;text-align:right">{{ r.total }}</strong>
+                  <span style="font-size:12.5px;line-height:1.35">
+                    <span style="display:inline-block;font-weight:700;color:{{ r.payInk }}">{{ r.payLabel }}</span>
+                    <span style="display:block;color:#6B6270">{{ r.payMethod }}</span>
+                  </span>
+                  <span style="display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;color:{{ r.stInk }};background:{{ r.stBg }};border-radius:20px;padding:5px 10px;justify-self:start">
+                    <span style="width:6px;height:6px;border-radius:50%;background:currentColor;display:block;flex:0 0 auto"></span>{{ r.stLabel }}
+                  </span>
+                  <span style="display:flex;gap:6px;justify-content:flex-end">
+                    <button onClick="{{ r.primary }}" title="{{ r.primaryTitle }}" aria-label="{{ r.primaryTitle }}" style="border:0;background:{{ r.primaryBg }};color:{{ r.primaryInk }};font-size:12.5px;font-weight:700;border-radius:8px;padding:7px 10px;cursor:pointer;white-space:nowrap" style-hover="filter:brightness(1.08)">{{ r.primaryLabel }}</button>
+                  </span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+          <sc-if value="{{ isEmpty }}" hint-placeholder-val="{{ false }}">
+            <div style="padding:44px 20px;text-align:center;color:#6B6270;font-size:14px">No hay pedidos con estos filtros.</div>
+          </sc-if>
+        </div>
+      </main>
+    </sc-if>
+
+    <sc-if value="{{ isStock }}" hint-placeholder-val="{{ false }}">
+      <main style="padding:{{ mainPad }};display:flex;flex-direction:column;gap:14px">
+        <div style="display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap">
+          <h1 style="margin:0;font-family:Outfit,sans-serif;font-size:27px;font-weight:700;letter-spacing:-.02em">Productos &amp; Stock</h1>
+          <span style="font-size:12px;font-weight:700;color:#7B1FA2;background:#F3F0FA;border:1px solid #E3D6EB;border-radius:20px;padding:4px 11px">Stock provisional · PSC-005</span>
+        </div>
+
+        <div style="display:flex;gap:7px;border-bottom:1px solid #E6E1EA;padding-bottom:12px">
+          <sc-for list="{{ stockTabs }}" as="t" hint-placeholder-count="2">
+            <button onClick="{{ t.go }}" style="border:1px solid {{ t.border }};background:{{ t.bg }};color:{{ t.ink }};font-size:13.5px;font-weight:700;border-radius:10px;padding:8px 14px;cursor:pointer" style-hover="border-color:#7B1FA2">{{ t.label }}</button>
+          </sc-for>
+        </div>
+
+        <sc-if value="{{ isProductsTab }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+              <div style="display:flex;align-items:center;gap:9px;background:#ffffff;border:1px solid #E6E1EA;border-radius:11px;padding:0 12px;height:38px;flex:1;min-width:220px;max-width:360px">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#6B6270" stroke-width="2.2"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg>
+                <input value="{{ stockQ }}" onInput="{{ onStockQ }}" placeholder="Buscar producto o SKU…" aria-label="Buscar producto" style="flex:1;border:0;background:transparent;outline:none;font-size:13.5px;color:#1E1A21" />
+              </div>
+              <select value="{{ stockCategory }}" onChange="{{ onStockCategory }}" aria-label="Categoría" style="height:38px;border:1px solid #E6E1EA;background:#ffffff;border-radius:10px;padding:0 11px;font-size:13.5px;font-weight:600;color:#1E1A21;cursor:pointer">
+                <option value="all">Todas las categorías</option>
+                <sc-for list="{{ categories }}" as="c" hint-placeholder-count="2">
+                  <option value="{{ c }}">{{ c }}</option>
+                </sc-for>
+              </select>
+            </div>
+
+            <div style="background:#ffffff;border:1px solid #E6E1EA;border-radius:16px;overflow:hidden">
+              <div style="overflow-x:auto" class="mr-sc">
+                <div style="min-width:900px">
+                  <div style="display:grid;grid-template-columns:56px 118px 1.8fr 140px 110px 120px 150px;gap:10px;padding:12px 16px;background:#FAF8FB;border-bottom:1px solid #E6E1EA;font-size:11px;font-weight:800;color:#6B6270;text-transform:uppercase;letter-spacing:.05em">
+                    <span></span><span>SKU</span><span>Nombre</span><span>Categoría</span><span style="text-align:right">Precio</span><span style="text-align:right">Stock total</span><span>Estado</span>
+                  </div>
+                  <sc-for list="{{ productRows }}" as="p" hint-placeholder-count="6">
+                    <div style="display:grid;grid-template-columns:56px 118px 1.8fr 140px 110px 120px 150px;gap:10px;padding:11px 16px;border-bottom:1px solid #F1EDF4;align-items:center">
+                      <span style="width:44px;height:44px;border-radius:9px;background-color:#F4F1F6;background-image:{{ p.bgImage }};background-size:cover;background-position:center;display:block"></span>
+                      <span style="font-size:12.5px;font-weight:700;color:#4A4350">{{ p.sku }}</span>
+                      <span style="font-size:13.5px;font-weight:600;text-wrap:pretty">{{ p.name }}</span>
+                      <span style="font-size:12.5px;color:#6B6270">{{ p.category }}</span>
+                      <strong style="font-family:Outfit,sans-serif;font-size:14px;font-weight:700;text-align:right">{{ p.price }}</strong>
+                      <span style="font-family:Outfit,sans-serif;font-size:14px;font-weight:700;text-align:right">{{ p.stockTotal }}</span>
+                      <span style="display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;color:{{ p.stInk }};background:{{ p.stBg }};border-radius:20px;padding:5px 10px;justify-self:start">
+                        <span style="width:6px;height:6px;border-radius:50%;background:currentColor;display:block;flex:0 0 auto"></span>{{ p.stLabel }}
+                      </span>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+              <sc-if value="{{ productsEmpty }}" hint-placeholder-val="{{ false }}">
+                <div style="padding:44px 20px;text-align:center;color:#6B6270;font-size:14px">No hay productos con esta búsqueda.</div>
+              </sc-if>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isQrTab }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <div style="background:#FFF6E0;border:1px solid #F2DFA6;border-radius:14px;padding:13px 15px;display:flex;gap:10px;align-items:flex-start">
+              <span style="font-size:11px;font-weight:800;color:#7A5300;background:#ffffff;border:1px solid #F2DFA6;border-radius:20px;padding:3px 9px;flex:0 0 auto">DEMO</span>
+              <span style="font-size:13px;color:#5F4A15;line-height:1.5;text-wrap:pretty">Este escaneo es simulado y no impacta un inventario real. No se piden permisos de cámara ni se conectan servicios externos.</span>
+            </div>
+
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px">
+              <sc-for list="{{ qrProducts }}" as="p" hint-placeholder-count="6">
+                <div style="background:#ffffff;border:1px solid #E6E1EA;border-radius:14px;padding:13px;display:flex;flex-direction:column;gap:10px">
+                  <div style="display:flex;gap:11px;align-items:center">
+                    <span style="width:52px;height:52px;border-radius:10px;background-color:#F4F1F6;background-image:{{ p.bgImage }};background-size:cover;background-position:center;flex:0 0 auto;display:block"></span>
+                    <span style="min-width:0;flex:1">
+                      <span style="display:block;font-size:13.5px;font-weight:700;line-height:1.35;text-wrap:pretty">{{ p.name }}</span>
+                      <span style="display:block;font-size:12px;color:#6B6270;margin-top:2px">{{ p.category }} · SKU {{ p.sku }}</span>
+                    </span>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap">
+                    <strong style="font-family:Outfit,sans-serif;font-size:18px;font-weight:700">{{ p.stock }}</strong>
+                    <span style="font-size:12px;color:#6B6270">unidades</span>
+                    <span style="font-size:12px;font-weight:700;color:{{ p.stInk }};background:{{ p.stBg }};border-radius:20px;padding:4px 9px;margin-left:auto">{{ p.stLabel }}</span>
+                  </div>
+                  <button onClick="{{ p.go }}" style="border:0;background:#7B1FA2;color:#ffffff;font-size:14px;font-weight:700;border-radius:11px;padding:13px 14px;cursor:pointer;min-height:46px;width:100%" style-hover="background:#5C1580">Ver QR</button>
+                </div>
+              </sc-for>
+            </div>
+
+            <div style="background:#ffffff;border:1px solid #E6E1EA;border-radius:16px;overflow:hidden">
+              <div style="padding:13px 16px;border-bottom:1px solid #F1EDF4;display:flex;align-items:center;gap:9px">
+                <strong style="font-family:Outfit,sans-serif;font-size:15px;font-weight:700">Historial de movimientos</strong>
+                <span style="font-size:11px;font-weight:800;color:#7A5300;background:#FFF6E0;border:1px solid #F2DFA6;border-radius:20px;padding:3px 9px">DEMO</span>
+              </div>
+              <sc-if value="{{ hasMovements }}" hint-placeholder-val="{{ false }}">
+                <sc-for list="{{ movementRows }}" as="m" hint-placeholder-count="3">
+                  <div style="padding:12px 16px;border-bottom:1px solid #F1EDF4;display:flex;gap:11px;align-items:flex-start;flex-wrap:wrap">
+                    <span style="font-size:12px;font-weight:800;color:{{ m.kindInk }};background:{{ m.kindBg }};border-radius:20px;padding:5px 10px;flex:0 0 auto">{{ m.kindLabel }}</span>
+                    <span style="flex:1;min-width:170px">
+                      <span style="display:block;font-size:13.5px;font-weight:600;line-height:1.35">{{ m.name }}</span>
+                      <span style="display:block;font-size:12px;color:#6B6270;margin-top:2px">SKU {{ m.sku }} · {{ m.qty }} u · {{ m.reason }}</span>
+                      <span style="display:block;font-size:12px;color:#6B6270">{{ m.who }} · {{ m.when }}</span>
+                    </span>
+                    <strong style="font-family:Outfit,sans-serif;font-size:14px;font-weight:700;flex:0 0 auto">{{ m.delta }}</strong>
+                  </div>
+                </sc-for>
+              </sc-if>
+              <sc-if value="{{ noMovements }}" hint-placeholder-val="{{ true }}">
+                <div style="padding:26px 18px;text-align:center;color:#6B6270;font-size:13.5px;line-height:1.5">Todavía no registraste movimientos en esta demo. Escaneá un producto para probarlo.</div>
+              </sc-if>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isInventoryTab }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+              <span style="font-size:12.5px;color:#6B6270">{{ criticalCount }} filas en stock crítico o sin stock</span>
+            </div>
+
+            <div style="background:#ffffff;border:1px solid #E6E1EA;border-radius:16px;overflow:hidden">
+              <div style="overflow-x:auto" class="mr-sc">
+                <div style="min-width:820px">
+                  <div style="display:grid;grid-template-columns:1.7fr 1fr 90px 100px 100px 150px;gap:10px;padding:12px 16px;background:#FAF8FB;border-bottom:1px solid #E6E1EA;font-size:11px;font-weight:800;color:#6B6270;text-transform:uppercase;letter-spacing:.05em">
+                    <span>Producto</span><span>Sucursal</span><span style="text-align:right">Físico</span><span style="text-align:right">Reservado</span><span style="text-align:right">Disponible</span><span>Estado</span>
+                  </div>
+                  <sc-for list="{{ inventoryRows }}" as="i" hint-placeholder-count="8">
+                    <div style="display:grid;grid-template-columns:1.7fr 1fr 90px 100px 100px 150px;gap:10px;padding:11px 16px;border-bottom:1px solid #F1EDF4;align-items:center">
+                      <span style="font-size:13.5px;font-weight:600;text-wrap:pretty">{{ i.name }}</span>
+                      <span style="font-size:12.5px;color:#6B6270">{{ i.branchName }}</span>
+                      <span style="font-size:13px;text-align:right">{{ i.physical }}</span>
+                      <span style="font-size:13px;text-align:right;color:#6B6270">{{ i.reserved }}</span>
+                      <strong style="font-family:Outfit,sans-serif;font-size:14px;font-weight:700;text-align:right">{{ i.available }}</strong>
+                      <span style="display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;color:{{ i.stInk }};background:{{ i.stBg }};border-radius:20px;padding:5px 10px;justify-self:start">
+                        <span style="width:6px;height:6px;border-radius:50%;background:currentColor;display:block;flex:0 0 auto"></span>{{ i.stLabel }}
+                      </span>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+      </main>
+    </sc-if>
+
+    <sc-if value="{{ isClientes }}" hint-placeholder-val="{{ false }}">
+      <main style="padding:{{ mainPad }};display:flex;flex-direction:column;gap:14px">
+        <div style="display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap">
+          <h1 style="margin:0;font-family:Outfit,sans-serif;font-size:27px;font-weight:700;letter-spacing:-.02em">Clientes</h1>
+          <span style="font-size:13px;color:#6B6270">{{ customerCountLabel }}</span>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:9px;background:#ffffff;border:1px solid #E6E1EA;border-radius:11px;padding:0 12px;height:38px;max-width:360px">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#6B6270" stroke-width="2.2"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg>
+          <input value="{{ custQ }}" onInput="{{ onCustQ }}" placeholder="Buscar cliente, teléfono o DNI…" aria-label="Buscar cliente" style="flex:1;border:0;background:transparent;outline:none;font-size:13.5px;color:#1E1A21" />
+        </div>
+
+        <div style="background:#ffffff;border:1px solid #E6E1EA;border-radius:16px;overflow:hidden">
+          <div style="overflow-x:auto" class="mr-sc">
+            <div style="min-width:920px">
+              <div style="display:grid;grid-template-columns:1.5fr 140px 1fr 90px 130px 130px 100px;gap:10px;padding:12px 16px;background:#FAF8FB;border-bottom:1px solid #E6E1EA;font-size:11px;font-weight:800;color:#6B6270;text-transform:uppercase;letter-spacing:.05em">
+                <span>Cliente</span><span>Teléfono</span><span>Sucursal habitual</span><span style="text-align:right">Pedidos</span><span style="text-align:right">Gasto total</span><span>Última compra</span><span></span>
+              </div>
+              <sc-for list="{{ customerRows }}" as="c" hint-placeholder-count="6">
+                <div style="display:grid;grid-template-columns:1.5fr 140px 1fr 90px 130px 130px 100px;gap:10px;padding:12px 16px;border-bottom:1px solid #F1EDF4;align-items:center">
+                  <span style="font-size:13.5px;font-weight:600">{{ c.name }}</span>
+                  <span style="font-size:12.5px;color:#6B6270">{{ c.phone }}</span>
+                  <span style="font-size:12.5px;color:#4A4350">{{ c.branchName }}</span>
+                  <span style="font-size:13px;text-align:right">{{ c.ordersCount }}</span>
+                  <strong style="font-family:Outfit,sans-serif;font-size:14px;font-weight:700;text-align:right">{{ c.totalSpent }}</strong>
+                  <span style="font-size:12.5px;color:#6B6270">{{ c.lastAtLabel }}</span>
+                  <button onClick="{{ c.open }}" style="border:0;background:#F4F1F6;color:#7B1FA2;font-size:12.5px;font-weight:700;border-radius:8px;padding:7px 10px;cursor:pointer;justify-self:end" style-hover="background:#F3F0FA">Ficha</button>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+          <sc-if value="{{ customersEmpty }}" hint-placeholder-val="{{ false }}">
+            <div style="padding:44px 20px;text-align:center;color:#6B6270;font-size:14px">No hay clientes con esta búsqueda.</div>
+          </sc-if>
+        </div>
+      </main>
+    </sc-if>
+
+    <sc-if value="{{ isDenied }}" hint-placeholder-val="{{ false }}">
+      <main style="padding:{{ mainPad }}">
+        <div style="background:#ffffff;border:1px solid #F1C9C4;border-radius:16px;padding:36px 28px;display:flex;flex-direction:column;align-items:flex-start;gap:10px;max-width:620px">
+          <span style="font-size:11.5px;font-weight:800;color:#8C1E17;background:#FDECEA;border:1px solid #F1C9C4;border-radius:20px;padding:4px 11px;text-transform:uppercase;letter-spacing:.06em">Acceso denegado</span>
+          <h1 style="margin:0;font-family:Outfit,sans-serif;font-size:24px;font-weight:700;letter-spacing:-.02em">Usuarios y accesos</h1>
+          <p style="margin:0;font-size:14.5px;color:#6B6270;line-height:1.55;text-wrap:pretty">Tu rol ({{ sessionRole }}) no está autorizado a administrar usuarios, roles ni accesos. Pedíselo a un administrador del local.</p>
+          <button onClick="{{ goOrders }}" style="margin-top:8px;border:0;background:#7B1FA2;color:#ffffff;font-size:14px;font-weight:700;border-radius:10px;padding:11px 18px;cursor:pointer" style-hover="background:#5C1580">Ir a Pedidos</button>
+        </div>
+      </main>
+    </sc-if>
+
+    <sc-if value="{{ isUsers }}" hint-placeholder-val="{{ false }}">
+      <main style="padding:{{ mainPad }};display:flex;flex-direction:column;gap:14px">
+        <div style="display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap">
+          <h1 style="margin:0;font-family:Outfit,sans-serif;font-size:27px;font-weight:700;letter-spacing:-.02em">Usuarios y accesos</h1>
+          <span style="font-size:13px;color:#6B6270">{{ userCountLabel }} · datos demo en este navegador</span>
+        </div>
+
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+          <div style="display:flex;align-items:center;gap:9px;background:#ffffff;border:1px solid #E6E1EA;border-radius:11px;padding:0 12px;height:38px;flex:1;min-width:220px;max-width:360px">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#6B6270" stroke-width="2.2"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg>
+            <input value="{{ userQ }}" onInput="{{ onUserQ }}" placeholder="Buscar por nombre o email…" aria-label="Buscar usuario" style="flex:1;border:0;background:transparent;outline:none;font-size:13.5px;color:#1E1A21" />
+          </div>
+          <button onClick="{{ newUser }}" style="border:0;background:#7B1FA2;color:#ffffff;font-size:13.5px;font-weight:700;border-radius:10px;padding:10px 15px;cursor:pointer;margin-left:auto" style-hover="background:#5C1580">Nuevo usuario demo</button>
+        </div>
+
+        <div style="background:#ffffff;border:1px solid #E6E1EA;border-radius:16px;overflow:hidden">
+          <div style="overflow-x:auto" class="mr-sc">
+            <div style="min-width:960px">
+              <div style="display:grid;grid-template-columns:1.5fr 190px 160px 1fr;gap:10px;padding:12px 16px;background:#FAF8FB;border-bottom:1px solid #E6E1EA;font-size:11px;font-weight:800;color:#6B6270;text-transform:uppercase;letter-spacing:.05em">
+                <span>Usuario</span><span>Rol</span><span>Estado</span><span style="text-align:right">Acciones</span>
+              </div>
+              <sc-for list="{{ userRows }}" as="u" hint-placeholder-count="3">
+                <div style="display:grid;grid-template-columns:1.5fr 190px 160px 1fr;gap:10px;padding:13px 16px;border-bottom:1px solid #F1EDF4;align-items:center">
+                  <span style="min-width:0">
+                    <span style="display:flex;align-items:center;gap:8px">
+                      <strong style="font-size:13.5px;font-weight:700">{{ u.name }}</strong>
+                      <sc-if value="{{ u.isMe }}" hint-placeholder-val="{{ false }}">
+                        <span style="font-size:11px;font-weight:800;color:#7B1FA2;background:#F3F0FA;border:1px solid #E3D6EB;border-radius:20px;padding:2px 8px">{{ u.meTag }}</span>
+                      </sc-if>
+                    </span>
+                    <span style="display:block;font-size:12.5px;color:#6B6270;margin-top:2px">{{ u.email }}</span>
+                  </span>
+                  <select value="{{ u.role }}" onChange="{{ u.onRole }}" aria-label="Rol de {{ u.name }}" style="height:38px;border:1px solid #E6E1EA;background:#ffffff;border-radius:10px;padding:0 10px;font-size:13px;font-weight:700;color:#1E1A21;cursor:pointer">
+                    <option value="admin">Administrador</option>
+                    <option value="encargado">Encargado</option>
+                    <option value="empleado">Empleado</option>
+                  </select>
+                  <span style="display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;color:{{ u.stInk }};background:{{ u.stBg }};border-radius:20px;padding:5px 10px;justify-self:start">
+                    <span style="width:6px;height:6px;border-radius:50%;background:currentColor;display:block;flex:0 0 auto"></span>{{ u.stLabel }}
+                  </span>
+                  <span style="display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap">
+                    <button onClick="{{ u.edit }}" style="border:1px solid #E6E1EA;background:#ffffff;color:#4A4350;font-size:12.5px;font-weight:700;border-radius:8px;padding:7px 10px;cursor:pointer" style-hover="border-color:#7B1FA2">Editar</button>
+                    <button onClick="{{ u.toggle }}" style="border:1px solid #E6E1EA;background:#ffffff;color:#4A4350;font-size:12.5px;font-weight:700;border-radius:8px;padding:7px 10px;cursor:pointer" style-hover="border-color:#7B1FA2">{{ u.toggleLabel }}</button>
+                    <button onClick="{{ u.reset }}" style="border:1px solid #E6E1EA;background:#ffffff;color:#4A4350;font-size:12.5px;font-weight:700;border-radius:8px;padding:7px 10px;cursor:pointer" style-hover="border-color:#7B1FA2">Restablecer</button>
+                    <button onClick="{{ u.invalidate }}" style="border:1px solid #E6E1EA;background:#ffffff;color:#4A4350;font-size:12.5px;font-weight:700;border-radius:8px;padding:7px 10px;cursor:pointer" style-hover="border-color:#7B1FA2">Cerrar sesión</button>
+                    <sc-if value="{{ u.canRevoke }}" hint-placeholder-val="{{ true }}">
+                      <button onClick="{{ u.revoke }}" style="border:1px solid #F1C9C4;background:#ffffff;color:#B3261E;font-size:12.5px;font-weight:700;border-radius:8px;padding:7px 10px;cursor:pointer" style-hover="background:#FDECEA">Revocar</button>
+                    </sc-if>
+                  </span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+          <sc-if value="{{ usersEmpty }}" hint-placeholder-val="{{ false }}">
+            <div style="padding:44px 20px;text-align:center;color:#6B6270;font-size:14px">No hay usuarios con esta búsqueda.</div>
+          </sc-if>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px">
+          <div style="background:#ffffff;border:1px solid #E6E1EA;border-radius:16px;padding:16px 18px">
+            <div style="font-size:11.5px;font-weight:800;color:#6B6270;text-transform:uppercase;letter-spacing:.06em">Historial de cambios de acceso</div>
+            <sc-if value="{{ hasLog }}" hint-placeholder-val="{{ true }}">
+              <div style="display:flex;flex-direction:column;margin-top:10px">
+                <sc-for list="{{ logRows }}" as="l" hint-placeholder-count="4">
+                  <div style="display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid #F1EDF4;font-size:13px">
+                    <span style="color:#1E1A21;line-height:1.4;text-wrap:pretty">{{ l.text }}</span>
+                    <span style="color:#6B6270;flex:0 0 auto;font-size:12px">{{ l.when }}</span>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+          </div>
+          <div style="background:#FFF6E0;border:1px solid #F2DFA6;border-radius:16px;padding:16px 18px">
+            <div style="font-size:11.5px;font-weight:800;color:#7A5300;text-transform:uppercase;letter-spacing:.06em">Límites del modo demo</div>
+            <div style="font-size:13px;color:#5F4A15;line-height:1.6;margin-top:9px;text-wrap:pretty">Usuarios, sesiones e historial se guardan en el navegador (localStorage). Las contraseñas son de demostración y todos los usuarios comparten <strong>{{ demoPassword }}</strong>. Al conectar Supabase, estos servicios se reemplazan sin cambiar la interfaz.</div>
+          </div>
+        </div>
+      </main>
+    </sc-if>
+
+    <sc-if value="{{ isSoon }}" hint-placeholder-val="{{ false }}">
+      <main style="padding:{{ mainPad }}">
+        <div style="background:#ffffff;border:1px solid #E6E1EA;border-radius:16px;padding:44px 28px;display:flex;flex-direction:column;align-items:flex-start;gap:10px;max-width:640px">
+          <span style="font-size:11.5px;font-weight:800;color:#7B1FA2;background:#F3F0FA;border:1px solid #E3D6EB;border-radius:20px;padding:4px 11px;text-transform:uppercase;letter-spacing:.06em">Próximamente</span>
+          <h1 style="margin:0;font-family:Outfit,sans-serif;font-size:24px;font-weight:700;letter-spacing:-.02em">{{ soonTitle }}</h1>
+          <p style="margin:0;font-size:14.5px;color:#6B6270;line-height:1.55;text-wrap:pretty">Este módulo entra en el alcance posterior. La consolidación v0.0.2 cubre el shell de control, el panel de inicio operacional, el flujo completo de pedidos, Productos &amp; Stock y Clientes sobre el contrato canónico.</p>
+          <button onClick="{{ goOrders }}" style="margin-top:8px;border:0;background:#7B1FA2;color:#ffffff;font-size:14px;font-weight:700;border-radius:10px;padding:11px 18px;cursor:pointer" style-hover="background:#5C1580">Ir a Pedidos</button>
+        </div>
+      </main>
+    </sc-if>
+  </div>
+
+  <sc-if value="{{ drawerOpen }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeDrawer }}" style="position:fixed;inset:0;background:rgba(30,26,33,.42);z-index:60;display:flex;justify-content:flex-end">
+      <div onClick="{{ stop }}" ref="{{ drawerRef }}" role="dialog" aria-modal="true" aria-label="Detalle del pedido" tabindex="-1" class="mr-sc" style="width:min(520px,100%);background:#F4F1F6;height:100%;overflow-y:auto;animation:mrIn .2s ease;box-shadow:-18px 0 44px rgba(30,26,33,.2)">
+
+        <div style="position:sticky;top:0;z-index:2;background:#3B0A4A;color:#EFE3F5;padding:16px 20px;display:flex;align-items:flex-start;gap:14px">
+          <div style="flex:1;min-width:0">
+            <div style="font-family:Outfit,sans-serif;font-size:21px;font-weight:700;letter-spacing:-.01em;color:#ffffff">{{ dId }}</div>
+            <div style="font-size:12.5px;color:#C7A9D4;margin-top:3px">{{ dWhen }} · {{ dPayMethod }} · {{ dPayStatusLabel }}</div>
+          </div>
+          <span style="font-size:12.5px;font-weight:700;color:{{ dStInk }};background:{{ dStBg }};border-radius:20px;padding:5px 11px;flex:0 0 auto">{{ dStLabel }}</span>
+          <button onClick="{{ closeDrawer }}" aria-label="Cerrar detalle" style="border:0;background:rgba(255,255,255,.12);color:#ffffff;border-radius:9px;width:32px;height:32px;cursor:pointer;font-size:16px;line-height:1;flex:0 0 auto" style-hover="background:rgba(255,255,255,.24)">✕</button>
+        </div>
+
+        <div style="padding:16px 20px 30px;display:flex;flex-direction:column;gap:14px">
+
+          <div style="background:#ffffff;border:1px solid #E6E1EA;border-radius:14px;padding:14px 16px;display:grid;grid-template-columns:1fr 1fr;gap:13px">
+            <div>
+              <div style="font-size:11px;font-weight:800;color:#6B6270;text-transform:uppercase;letter-spacing:.05em">Cliente</div>
+              <div style="font-size:14.5px;font-weight:700;margin-top:5px">{{ dClient }}</div>
+              <div style="font-size:12.5px;color:#6B6270;margin-top:2px">{{ dPhone }}</div>
+              <div style="font-size:12.5px;color:#6B6270">DNI {{ dDni }}</div>
+            </div>
+            <div>
+              <div style="font-size:11px;font-weight:800;color:#6B6270;text-transform:uppercase;letter-spacing:.05em">{{ dDelivery }}</div>
+              <div style="font-size:14.5px;font-weight:700;margin-top:5px;line-height:1.3">{{ dPlace }}</div>
+              <div style="font-size:12.5px;color:#6B6270;margin-top:2px">{{ dPlaceSub }}</div>
+            </div>
+          </div>
+
+          <sc-if value="{{ dNeedsTransfer }}" hint-placeholder-val="{{ false }}">
+            <div style="background:#FFF6E0;border:1px solid #F2DFA6;border-radius:14px;padding:14px 16px">
+              <div style="display:flex;align-items:center;gap:8px">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#B07800" stroke-width="2" stroke-linecap="round"><path d="M12 8v5m0 3h.01M10.3 3.9L2.6 17a1.6 1.6 0 001.4 2.4h16a1.6 1.6 0 001.4-2.4L13.7 3.9a1.6 1.6 0 00-2.8 0z"></path></svg>
+                <strong style="font-size:14px;font-weight:800;color:#7A5300">Transferencia pendiente de validación</strong>
+              </div>
+              <div style="display:flex;gap:12px;margin-top:12px;align-items:stretch">
+                <div style="width:112px;flex:0 0 auto;background:#ffffff;border:1px dashed #E9DDBE;border-radius:11px;padding:9px;display:flex;flex-direction:column;gap:5px;justify-content:center">
+                  <span style="display:block;height:7px;border-radius:4px;background:#EFE6D2"></span>
+                  <span style="display:block;height:7px;width:70%;border-radius:4px;background:#EFE6D2"></span>
+                  <span style="display:block;height:26px;border-radius:6px;background:#F6EFDD;margin:3px 0"></span>
+                  <span style="display:block;height:7px;width:52%;border-radius:4px;background:#EFE6D2"></span>
+                  <span style="font-size:9.5px;font-weight:800;color:#9A7A2E;text-align:center;margin-top:2px;line-height:1.3">{{ dProofTag }}</span>
+                </div>
+                <div style="flex:1;min-width:0;font-size:12.5px;color:#5F4A15;line-height:1.5">
+                  <div>Titular {{ dClient }}</div>
+                  <div>Monto declarado <strong>{{ dTotal }}</strong></div>
+                  <div style="font-weight:700;margin-top:4px">{{ dProofNote }}</div>
+                  <div style="margin-top:9px;display:flex;gap:8px;flex-wrap:wrap">
+                    <sc-if value="{{ dCanApprove }}" hint-placeholder-val="{{ false }}">
+                      <button onClick="{{ dApprove }}" style="border:0;background:#3E7A12;color:#ffffff;font-size:13px;font-weight:700;border-radius:9px;padding:9px 14px;cursor:pointer" style-hover="filter:brightness(1.1)">Aprobar pago</button>
+                    </sc-if>
+                    <sc-if value="{{ dCanApprove }}" hint-placeholder-val="{{ false }}">
+                      <button onClick="{{ dReject }}" style="border:1px solid #D9BFC0;background:#ffffff;color:#B3261E;font-size:13px;font-weight:700;border-radius:9px;padding:9px 14px;cursor:pointer" style-hover="background:#FDECEA">Rechazar</button>
+                    </sc-if>
+                    <sc-if value="{{ dPayLocked }}" hint-placeholder-val="{{ false }}">
+                      <span style="font-size:12.5px;font-weight:700;color:#7A5300">{{ dPayLockedNote }}</span>
+                    </sc-if>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ dGift }}" hint-placeholder-val="{{ false }}">
+            <div style="background:#FDEEF7;border:1px solid #F2CFE4;border-radius:14px;padding:14px 16px">
+              <div style="display:flex;align-items:center;gap:8px">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#C42B8E" stroke-width="2" stroke-linecap="round"><path d="M4 11h16v9H4zM4 11V8h16v3M12 8v12M12 8c-4 0-5-4-2-4s2 4 2 4zm0 0c4 0 5-4 2-4s-2 4-2 4z"></path></svg>
+                <strong style="font-size:14px;font-weight:800;color:#9B1E6E">Empaque para regalo solicitado</strong>
+              </div>
+              <div style="margin-top:10px;background:#ffffff;border:1px dashed #E7B6D3;border-radius:11px;padding:11px 13px;font-size:14px;line-height:1.5;color:#5A2447;font-style:italic;text-wrap:pretty">“{{ dGiftMsg }}”</div>
+              <div style="font-size:12px;color:#9B1E6E;margin-top:8px;font-weight:600">Imprimir tarjeta y envolver antes de cerrar el empaque.</div>
+            </div>
+          </sc-if>
+
+          <div style="background:#ffffff;border:1px solid #E6E1EA;border-radius:14px;overflow:hidden">
+            <div style="padding:12px 16px;border-bottom:1px solid #F1EDF4;display:flex;justify-content:space-between;align-items:center">
+              <strong style="font-family:Outfit,sans-serif;font-size:15px;font-weight:700">Artículos</strong>
+              <span style="font-size:12.5px;color:#6B6270">{{ dUnits }}</span>
+            </div>
+            <sc-for list="{{ dItems }}" as="i" hint-placeholder-count="2">
+              <div style="display:flex;gap:12px;padding:12px 16px;border-bottom:1px solid #F1EDF4;align-items:center">
+                <span role="img" aria-label="{{ i.name }}" style="width:52px;height:52px;border-radius:10px;background-color:#F4F1F6;background-image:{{ i.bgImage }};background-size:cover;background-position:center;flex:0 0 auto;overflow:hidden;display:block"></span>
+                <div style="flex:1;min-width:0">
+                  <div style="font-size:13.5px;font-weight:600;line-height:1.35;text-wrap:pretty">{{ i.name }}</div>
+                  <div style="font-size:12px;color:#6B6270;margin-top:2px">SKU {{ i.sku }} · {{ i.unit }} c/u</div>
+                </div>
+                <div style="text-align:right;flex:0 0 auto">
+                  <div style="font-size:12.5px;color:#6B6270">x{{ i.qty }}</div>
+                  <strong style="font-family:Outfit,sans-serif;font-size:14px;font-weight:700">{{ i.line }}</strong>
+                </div>
+              </div>
+            </sc-for>
+            <div style="padding:12px 16px;display:flex;flex-direction:column;gap:5px;font-size:13px">
+              <span style="display:flex;justify-content:space-between;color:#6B6270">Subtotal<span>{{ dSubtotal }}</span></span>
+              <span style="display:flex;justify-content:space-between;color:#6B6270">{{ dShipLabel }}<span>{{ dShipValue }}</span></span>
+              <span style="display:flex;justify-content:space-between;font-family:Outfit,sans-serif;font-size:18px;font-weight:700;margin-top:4px">Total<span>{{ dTotal }}</span></span>
+            </div>
+          </div>
+
+          <div style="background:#ffffff;border:1px solid #E6E1EA;border-radius:14px;padding:14px 16px">
+            <div style="font-size:11px;font-weight:800;color:#6B6270;text-transform:uppercase;letter-spacing:.05em">Avanzar el pedido</div>
+            <div style="font-size:12.5px;color:#6B6270;margin-top:6px;line-height:1.45;text-wrap:pretty">{{ dFlowHint }}</div>
+            <sc-if value="{{ dCanAdvance }}" hint-placeholder-val="{{ true }}">
+              <button onClick="{{ dAdvance }}" style="margin-top:11px;width:100%;border:0;background:#7B1FA2;color:#ffffff;font-size:14.5px;font-weight:700;border-radius:11px;padding:13px 16px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px" style-hover="background:#5C1580">
+                {{ dAdvanceLabel }}
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M13 6l6 6-6 6"></path></svg>
+              </button>
+            </sc-if>
+            <sc-if value="{{ dBlocked }}" hint-placeholder-val="{{ false }}">
+              <div style="margin-top:11px;background:#FDECEA;border:1px solid #F1C9C4;border-radius:11px;padding:11px 13px;font-size:13px;font-weight:700;color:#8C1E17;line-height:1.45;text-wrap:pretty">{{ dBlockedReason }}</div>
+            </sc-if>
+            <sc-if value="{{ dHasSecondary }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:11px">
+                <sc-for list="{{ dSecondary }}" as="s" hint-placeholder-count="1">
+                  <button onClick="{{ s.go }}" style="border:1px solid {{ s.border }};background:#ffffff;color:{{ s.ink }};font-size:12.5px;font-weight:700;border-radius:8px;padding:7px 11px;cursor:pointer" style-hover="border-color:#7B1FA2">{{ s.label }}</button>
+                </sc-for>
+              </div>
+            </sc-if>
+          </div>
+
+          <sc-if value="{{ dHasWa }}" hint-placeholder-val="{{ false }}">
+            <a href="{{ dWa }}" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;gap:10px;background:#EEF7E6;border:1px solid #C9E3AE;border-radius:13px;padding:13px 16px;font-size:14.5px;font-weight:700;color:#2F5E0D;text-decoration:none" style-hover="background:#E4F2D6;text-decoration:none">
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 01-12.4 7.4L3.5 20.5l1.6-5A8.4 8.4 0 1121 11.5z"></path></svg>
+              {{ dWaLabel }}
+            </a>
+          </sc-if>
+          <sc-if value="{{ dHasWa }}" hint-placeholder-val="{{ false }}">
+            <div style="font-size:12px;color:#6B6270;line-height:1.5;margin-top:-6px;text-wrap:pretty">A {{ dWaPhone }} · Mensaje precargado: “{{ dWaPreview }}”</div>
+          </sc-if>
+          <sc-if value="{{ dNoWa }}" hint-placeholder-val="{{ false }}">
+            <div style="font-size:12.5px;color:#6B6270;line-height:1.5;background:#ffffff;border:1px dashed #E6E1EA;border-radius:13px;padding:12px 15px;text-wrap:pretty">Sin aviso de WhatsApp disponible para el estado actual ({{ dStLabel }}). Se habilita al acreditar el pago, al dejar el pedido listo para retirar y al despacharlo.</div>
+          </sc-if>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ custDrawerOpen }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeCustomerDrawer }}" style="position:fixed;inset:0;background:rgba(30,26,33,.42);z-index:60;display:flex;justify-content:flex-end">
+      <div onClick="{{ stop }}" role="dialog" aria-modal="true" aria-label="Ficha de cliente" tabindex="-1" class="mr-sc" style="width:min(480px,100%);background:#F4F1F6;height:100%;overflow-y:auto;animation:mrIn .2s ease;box-shadow:-18px 0 44px rgba(30,26,33,.2)">
+        <div style="position:sticky;top:0;z-index:2;background:#3B0A4A;color:#EFE3F5;padding:16px 20px;display:flex;align-items:flex-start;gap:14px">
+          <div style="flex:1;min-width:0">
+            <div style="font-family:Outfit,sans-serif;font-size:21px;font-weight:700;letter-spacing:-.01em;color:#ffffff">{{ cvName }}</div>
+            <div style="font-size:12.5px;color:#C7A9D4;margin-top:3px">{{ cvPhone }} · DNI {{ cvDni }}</div>
+          </div>
+          <button onClick="{{ closeCustomerDrawer }}" aria-label="Cerrar ficha" style="border:0;background:rgba(255,255,255,.12);color:#ffffff;border-radius:9px;width:32px;height:32px;cursor:pointer;font-size:16px;line-height:1;flex:0 0 auto" style-hover="background:rgba(255,255,255,.24)">✕</button>
+        </div>
+        <div style="padding:16px 20px 30px;display:flex;flex-direction:column;gap:14px">
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+            <div style="background:#ffffff;border:1px solid #E6E1EA;border-radius:13px;padding:12px 14px">
+              <div style="font-size:11px;font-weight:800;color:#6B6270;text-transform:uppercase;letter-spacing:.05em">Pedidos</div>
+              <div style="font-family:Outfit,sans-serif;font-size:20px;font-weight:700;margin-top:5px">{{ cvOrdersCount }}</div>
+            </div>
+            <div style="background:#ffffff;border:1px solid #E6E1EA;border-radius:13px;padding:12px 14px">
+              <div style="font-size:11px;font-weight:800;color:#6B6270;text-transform:uppercase;letter-spacing:.05em">Gasto total</div>
+              <div style="font-family:Outfit,sans-serif;font-size:20px;font-weight:700;margin-top:5px">{{ cvTotalSpent }}</div>
+            </div>
+            <div style="background:#ffffff;border:1px solid #E6E1EA;border-radius:13px;padding:12px 14px">
+              <div style="font-size:11px;font-weight:800;color:#6B6270;text-transform:uppercase;letter-spacing:.05em">Sucursal habitual</div>
+              <div style="font-size:13px;font-weight:700;margin-top:6px;line-height:1.3">{{ cvBranchName }}</div>
+            </div>
+          </div>
+          <div style="background:#ffffff;border:1px solid #E6E1EA;border-radius:14px;overflow:hidden">
+            <div style="padding:12px 16px;border-bottom:1px solid #F1EDF4">
+              <strong style="font-family:Outfit,sans-serif;font-size:15px;font-weight:700">Historial de pedidos</strong>
+            </div>
+            <sc-for list="{{ cvOrders }}" as="o" hint-placeholder-count="3">
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid #F1EDF4">
+                <span style="min-width:0">
+                  <span style="display:block;font-family:Outfit,sans-serif;font-size:13.5px;font-weight:700;color:#7B1FA2">{{ o.id }}</span>
+                  <span style="display:block;font-size:12px;color:#6B6270">{{ o.date }} · {{ o.total }}</span>
+                </span>
+                <span style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:{{ o.stInk }};background:{{ o.stBg }};border-radius:20px;padding:4px 9px">{{ o.stLabel }}</span>
+                <button onClick="{{ o.open }}" style="border:0;background:#F4F1F6;color:#7B1FA2;font-size:12px;font-weight:700;border-radius:8px;padding:6px 9px;cursor:pointer">Ver</button>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ qrOpen }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeQr }}" style="position:fixed;inset:0;background:rgba(30,26,33,.5);z-index:75;display:flex;align-items:center;justify-content:center;padding:16px;overflow-y:auto">
+      <div onClick="{{ stop }}" role="dialog" aria-modal="true" aria-label="QR del producto" style="width:min(400px,100%);background:#ffffff;border-radius:18px;overflow:hidden;box-shadow:0 24px 60px rgba(30,26,33,.3)">
+        <div style="background:#3B0A4A;color:#ffffff;padding:15px 18px;display:flex;align-items:flex-start;gap:12px">
+          <span style="flex:1;min-width:0">
+            <span style="display:block;font-family:Outfit,sans-serif;font-size:17px;font-weight:700;line-height:1.3;text-wrap:pretty">{{ qrName }}</span>
+            <span style="display:block;font-size:12.5px;color:#C7A9D4;margin-top:3px">{{ qrCategory }} · SKU {{ qrSkuLabel }}</span>
+          </span>
+          <button onClick="{{ closeQr }}" aria-label="Cerrar QR" style="border:0;background:rgba(255,255,255,.14);color:#ffffff;border-radius:9px;width:36px;height:36px;cursor:pointer;font-size:16px;flex:0 0 auto" style-hover="background:rgba(255,255,255,.26)">✕</button>
+        </div>
+        <div style="padding:18px;display:flex;flex-direction:column;gap:13px;align-items:stretch">
+          <div style="align-self:center;background:#ffffff;border:1px solid #E6E1EA;border-radius:14px;padding:12px">
+            <div style="display:grid;grid-template-columns:repeat(21,8px);grid-template-rows:repeat(21,8px);width:168px;height:168px">
+              <sc-for list="{{ qrCells }}" as="q" hint-placeholder-count="441">
+                <span style="display:block;background:{{ q.bg }}"></span>
+              </sc-for>
+            </div>
+            <div style="text-align:center;font-size:11px;font-weight:800;color:#7A5300;background:#FFF6E0;border:1px solid #F2DFA6;border-radius:20px;padding:3px 9px;margin-top:10px">QR DEMO · {{ qrSkuLabel }}</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:9px;justify-content:center;flex-wrap:wrap">
+            <strong style="font-family:Outfit,sans-serif;font-size:17px;font-weight:700">{{ qrStock }} u</strong>
+            <span style="font-size:12.5px;font-weight:700;color:{{ qrStInk }};background:{{ qrStBg }};border-radius:20px;padding:4px 10px">{{ qrStLabel }}</span>
+          </div>
+          <div style="display:flex;gap:9px;flex-wrap:wrap">
+            <button onClick="{{ printQr }}" style="flex:1;min-width:130px;border:1px solid #E6E1EA;background:#ffffff;color:#4A4350;font-size:14px;font-weight:700;border-radius:11px;padding:13px 14px;cursor:pointer;min-height:46px" style-hover="border-color:#7B1FA2">Imprimir</button>
+            <button onClick="{{ startScan }}" style="flex:1;min-width:150px;border:0;background:#7B1FA2;color:#ffffff;font-size:14px;font-weight:700;border-radius:11px;padding:13px 14px;cursor:pointer;min-height:46px" style-hover="background:#5C1580">Simular escaneo</button>
+          </div>
+          <div style="font-size:12px;color:#6B6270;line-height:1.5;text-wrap:pretty">Este escaneo es simulado y no impacta un inventario real.</div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ scanOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;inset:0;background:#1E1A21;z-index:85;display:flex;align-items:center;justify-content:center;padding:14px;overflow-y:auto">
+      <div style="width:min(400px,100%);background:#ffffff;border-radius:18px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.45)">
+        <div style="background:#3B0A4A;color:#ffffff;padding:14px 18px;display:flex;align-items:center;gap:10px">
+          <span style="font-size:11px;font-weight:800;color:#3B0A4A;background:#FFC629;border-radius:20px;padding:3px 9px">DEMO</span>
+          <strong style="font-family:Outfit,sans-serif;font-size:16px;font-weight:700;flex:1">Escaneo desde el celular</strong>
+          <button onClick="{{ closeScan }}" aria-label="Cerrar escaneo" style="border:0;background:rgba(255,255,255,.14);color:#ffffff;border-radius:9px;width:36px;height:36px;cursor:pointer;font-size:16px" style-hover="background:rgba(255,255,255,.26)">✕</button>
+        </div>
+
+        <sc-if value="{{ scanning }}" hint-placeholder-val="{{ true }}">
+          <div style="padding:34px 20px;display:flex;flex-direction:column;align-items:center;gap:14px">
+            <div style="width:180px;height:180px;border-radius:16px;border:3px solid #7B1FA2;background:#F4F1F6;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden">
+              <div style="display:grid;grid-template-columns:repeat(21,6px);grid-template-rows:repeat(21,6px);opacity:.45">
+                <sc-for list="{{ qrCells }}" as="q" hint-placeholder-count="441">
+                  <span style="display:block;background:{{ q.bg }}"></span>
+                </sc-for>
+              </div>
+              <span style="position:absolute;left:0;right:0;height:3px;background:#FFC629;animation:mrScan 1s ease-in-out infinite"></span>
+            </div>
+            <div style="font-size:14px;font-weight:700;color:#4A4350">Leyendo código…</div>
+            <div style="font-size:12px;color:#6B6270;text-align:center;line-height:1.5;text-wrap:pretty">Simulación: no se solicita acceso a la cámara.</div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ scanFound }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:16px 18px 20px;display:flex;flex-direction:column;gap:13px">
+            <div style="display:flex;gap:12px;align-items:center">
+              <span style="width:64px;height:64px;border-radius:12px;background-color:#F4F1F6;background-image:{{ qrImage }};background-size:cover;background-position:center;flex:0 0 auto;display:block"></span>
+              <span style="min-width:0;flex:1">
+                <span style="display:block;font-size:14.5px;font-weight:700;line-height:1.35;text-wrap:pretty">{{ qrName }}</span>
+                <span style="display:block;font-size:12.5px;color:#6B6270;margin-top:2px">SKU {{ qrSkuLabel }}</span>
+                <span style="display:flex;align-items:center;gap:8px;margin-top:6px">
+                  <strong style="font-family:Outfit,sans-serif;font-size:16px;font-weight:700">{{ qrStock }} u</strong>
+                  <span style="font-size:12px;font-weight:700;color:{{ qrStInk }};background:{{ qrStBg }};border-radius:20px;padding:4px 9px">{{ qrStLabel }}</span>
+                </span>
+              </span>
+            </div>
+
+            <div style="display:flex;gap:8px">
+              <sc-for list="{{ scanActions }}" as="a" hint-placeholder-count="3">
+                <button onClick="{{ a.go }}" style="flex:1;border:2px solid {{ a.border }};background:{{ a.bg }};color:{{ a.ink }};font-size:14px;font-weight:800;border-radius:12px;padding:13px 8px;cursor:pointer;min-height:48px" style-hover="filter:brightness(.97)">{{ a.label }}</button>
+              </sc-for>
+            </div>
+
+            <sc-if value="{{ hasScanAction }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-direction:column;gap:11px;border-top:1px solid #F1EDF4;padding-top:13px">
+                <label style="display:flex;flex-direction:column;gap:6px">
+                  <span style="font-size:12.5px;font-weight:700;color:#4A4350">{{ qtyLabel }}</span>
+                  <input type="number" inputMode="numeric" min="0" value="{{ scanQty }}" onInput="{{ onScanQty }}" style="height:48px;border:1px solid #E6E1EA;border-radius:11px;padding:0 12px;font-size:16px;background:#FAF8FB;outline:none;color:#1E1A21" />
+                </label>
+                <label style="display:flex;flex-direction:column;gap:6px">
+                  <span style="font-size:12.5px;font-weight:700;color:#4A4350">Motivo</span>
+                  <input value="{{ scanReason }}" onInput="{{ onScanReason }}" placeholder="Recepción de proveedor, venta en mostrador…" style="height:48px;border:1px solid #E6E1EA;border-radius:11px;padding:0 12px;font-size:15px;background:#FAF8FB;outline:none;color:#1E1A21" />
+                </label>
+                <sc-if value="{{ hasScanError }}" hint-placeholder-val="{{ false }}">
+                  <div role="alert" style="background:#FDECEA;border:1px solid #F1C9C4;border-radius:11px;padding:10px 12px;font-size:13px;font-weight:700;color:#8C1E17">{{ scanError }}</div>
+                </sc-if>
+                <button onClick="{{ confirmMovement }}" style="border:0;background:#7B1FA2;color:#ffffff;font-size:15px;font-weight:700;border-radius:12px;padding:14px 16px;cursor:pointer;min-height:50px" style-hover="background:#5C1580">Confirmar {{ scanActionLabel }}</button>
+              </div>
+            </sc-if>
+
+            <div style="font-size:12px;color:#6B6270;line-height:1.5;text-wrap:pretty">Este escaneo es simulado y no impacta un inventario real.</div>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ formOpen }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeForm }}" style="position:fixed;inset:0;background:rgba(30,26,33,.42);z-index:70;display:flex;align-items:center;justify-content:center;padding:20px">
+      <div onClick="{{ stop }}" role="dialog" aria-modal="true" aria-label="Formulario de usuario" style="width:min(460px,100%);background:#ffffff;border-radius:18px;overflow:hidden;box-shadow:0 24px 60px rgba(30,26,33,.28)">
+        <div style="background:#3B0A4A;color:#ffffff;padding:16px 20px;font-family:Outfit,sans-serif;font-size:19px;font-weight:700">{{ formTitle }}</div>
+        <div style="padding:18px 20px;display:flex;flex-direction:column;gap:13px">
+          <label style="display:flex;flex-direction:column;gap:6px">
+            <span style="font-size:12.5px;font-weight:700;color:#4A4350">Nombre</span>
+            <input value="{{ formName }}" onInput="{{ onFormName }}" placeholder="Nombre y apellido" style="height:42px;border:1px solid #E6E1EA;border-radius:11px;padding:0 12px;font-size:14px;background:#FAF8FB;outline:none;color:#1E1A21" />
+          </label>
+          <label style="display:flex;flex-direction:column;gap:6px">
+            <span style="font-size:12.5px;font-weight:700;color:#4A4350">Email</span>
+            <input type="email" value="{{ formEmail }}" onInput="{{ onFormEmail }}" placeholder="nombre@megaregalos.demo" style="height:42px;border:1px solid #E6E1EA;border-radius:11px;padding:0 12px;font-size:14px;background:#FAF8FB;outline:none;color:#1E1A21" />
+          </label>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:11px">
+            <label style="display:flex;flex-direction:column;gap:6px">
+              <span style="font-size:12.5px;font-weight:700;color:#4A4350">Rol</span>
+              <select value="{{ formRole }}" onChange="{{ onFormRole }}" style="height:42px;border:1px solid #E6E1EA;border-radius:11px;padding:0 10px;font-size:14px;font-weight:600;background:#ffffff;color:#1E1A21;cursor:pointer">
+                <option value="admin">Administrador</option>
+                <option value="encargado">Encargado</option>
+                <option value="empleado">Empleado</option>
+              </select>
+            </label>
+            <label style="display:flex;flex-direction:column;gap:6px">
+              <span style="font-size:12.5px;font-weight:700;color:#4A4350">Estado</span>
+              <select value="{{ formStatus }}" onChange="{{ onFormStatus }}" style="height:42px;border:1px solid #E6E1EA;border-radius:11px;padding:0 10px;font-size:14px;font-weight:600;background:#ffffff;color:#1E1A21;cursor:pointer">
+                <option value="active">Activo</option>
+                <option value="inactive">Inactivo</option>
+                <option value="revoked">Acceso revocado</option>
+              </select>
+            </label>
+          </div>
+          <sc-if value="{{ formHasError }}" hint-placeholder-val="{{ false }}">
+            <div role="alert" style="background:#FDECEA;border:1px solid #F1C9C4;border-radius:11px;padding:10px 12px;font-size:13px;font-weight:700;color:#8C1E17">{{ formError }}</div>
+          </sc-if>
+          <div style="display:flex;gap:9px;justify-content:flex-end;margin-top:4px">
+            <button onClick="{{ closeForm }}" style="border:1px solid #E6E1EA;background:#ffffff;color:#4A4350;font-size:13.5px;font-weight:700;border-radius:10px;padding:10px 15px;cursor:pointer" style-hover="border-color:#7B1FA2">Cancelar</button>
+            <button onClick="{{ saveForm }}" style="border:0;background:#7B1FA2;color:#ffffff;font-size:13.5px;font-weight:700;border-radius:10px;padding:10px 16px;cursor:pointer" style-hover="background:#5C1580">Guardar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ confirmOpen }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ confirmCancel }}" style="position:fixed;inset:0;background:rgba(30,26,33,.42);z-index:80;display:flex;align-items:center;justify-content:center;padding:20px">
+      <div onClick="{{ stop }}" role="alertdialog" aria-modal="true" aria-label="{{ confirmTitle }}" style="width:min(420px,100%);background:#ffffff;border-radius:18px;padding:22px;box-shadow:0 24px 60px rgba(30,26,33,.28);display:flex;flex-direction:column;gap:10px">
+        <h2 style="margin:0;font-family:Outfit,sans-serif;font-size:20px;font-weight:700;letter-spacing:-.01em">{{ confirmTitle }}</h2>
+        <p style="margin:0;font-size:14px;color:#6B6270;line-height:1.55;text-wrap:pretty">{{ confirmBody }}</p>
+        <div style="display:flex;gap:9px;justify-content:flex-end;margin-top:8px">
+          <button onClick="{{ confirmCancel }}" style="border:1px solid #E6E1EA;background:#ffffff;color:#4A4350;font-size:13.5px;font-weight:700;border-radius:10px;padding:10px 15px;cursor:pointer" style-hover="border-color:#7B1FA2">Cancelar</button>
+          <button onClick="{{ confirmOk }}" style="border:0;background:#B3261E;color:#ffffff;font-size:13.5px;font-weight:700;border-radius:10px;padding:10px 16px;cursor:pointer" style-hover="filter:brightness(1.1)">{{ confirmCta }}</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}">
+    <div role="status" style="position:fixed;left:50%;bottom:26px;z-index:90;background:#1E1A21;color:#ffffff;border-radius:12px;padding:13px 17px;display:flex;align-items:center;gap:12px;box-shadow:0 14px 34px rgba(30,26,33,.32);max-width:min(560px,92vw);animation:mrToast .22s ease">
+      <span style="width:8px;height:8px;border-radius:50%;background:{{ toastDot }};display:block;flex:0 0 auto"></span>
+      <span style="font-size:14px;line-height:1.4">{{ toast }}</span>
+      <button onClick="{{ closeToast }}" aria-label="Cerrar aviso" style="border:0;background:none;color:#C9C2CE;font-size:16px;cursor:pointer;padding:2px 4px;flex:0 0 auto">✕</button>
+    </div>
+  </sc-if>
+
+</div>
+</sc-if>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;showDemoAccounts&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Demo&quot;,&quot;label&quot;:&quot;Mostrar accesos demo en el login&quot;},&quot;demoClock&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;2026-08-27T14:20:00&quot;,&quot;tsType&quot;:&quot;string | null&quot;,&quot;section&quot;:&quot;Demo&quot;,&quot;label&quot;:&quot;Reloj demo (ISO). Vacío = reloj real&quot;}}">
+/* =========================================================================
+   MegaRegalos · dominio canónico v0.0.2
+   Sin campos legacy (delivery/pay/payStatus/state) ni enums legacy.
+   Capas: catálogo → seed → dominio (transiciones + RBAC) → selectores → UI.
+   ========================================================================= */
+
+const ARS = n => '$' + n.toLocaleString('es-AR');
+
+/* ---------- Sucursales ---------- */
+/* Local único de la demo: José C. Paz. Sin multisucursal ni selectores. */
+const BRANCHES = [
+  { id: 'b5', name: 'MegaRegalos José C. Paz', addr: 'Hipólito Yrigoyen 1851' }
+];
+const BRANCH = BRANCHES[0];
+const BR = {}; BRANCHES.forEach(b => { BR[b.id] = b; });
+
+/* ---------- Catálogo (Product.price = precio actual) ---------- */
+const PRODUCTS = {
+  'MR-JUG-001': { sku: 'MR-JUG-001', name: 'Bloques magnéticos 48 piezas', price: 22900, img: 'assets/n01.jpg', category: 'Juguetería' },
+  'MR-JUG-002': { sku: 'MR-JUG-002', name: 'Auto a fricción rescate 30 cm', price: 8900, img: 'assets/n02.jpg', category: 'Juguetería' },
+  'MR-JUG-003': { sku: 'MR-JUG-003', name: 'Peluche dinosaurio 35 cm', price: 9400, img: 'assets/n03.jpg', category: 'Juguetería' },
+  'MR-JUG-004': { sku: 'MR-JUG-004', name: 'Set doctor con maletín 18 piezas', price: 13200, img: 'assets/n04.jpg', category: 'Juguetería' },
+  'MR-JUG-005': { sku: 'MR-JUG-005', name: 'Pista de autos con loop 240 cm', price: 28500, img: 'assets/n05.jpg', category: 'Juguetería' },
+  'MR-BAZ-001': { sku: 'MR-BAZ-001', name: 'Set 12 vasos vidrio bajos', price: 15900, img: 'assets/n06.jpg', category: 'Bazar' }
+};
+
+/* ---------- Enums ---------- */
+const ORDER_STATUS = ['pending_payment', 'preparing', 'packed', 'ready_for_pickup', 'shipped', 'delivered', 'cancelled'];
+const STATUS_META = {
+  pending_payment: { label: 'Pago pendiente', ink: '#B07800', bg: '#FFF6E0' },
+  preparing: { label: 'En preparación', ink: '#7B1FA2', bg: '#F3F0FA' },
+  packed: { label: 'Empaquetado', ink: '#8A5A00', bg: '#FFF1D6' },
+  ready_for_pickup: { label: 'Listo p/ retiro', ink: '#3E7A12', bg: '#EEF7E6' },
+  shipped: { label: 'Despachado', ink: '#1D7CB8', bg: '#EDF4FB' },
+  delivered: { label: 'Entregado', ink: '#6B6270', bg: '#F0EDF2' },
+  cancelled: { label: 'Cancelado', ink: '#B3261E', bg: '#FDECEA' }
+};
+const PAYMENT_METHOD_LABEL = { mercadopago: 'Mercado Pago', transfer: 'Transferencia', card: 'Tarjeta de crédito', cash: 'Efectivo en sucursal' };
+const PAYMENT_STATUS_META = {
+  pending: { label: 'Pendiente', ink: '#B07800' },
+  approved: { label: 'Aprobado', ink: '#3E7A12' },
+  rejected: { label: 'Rechazado', ink: '#B3261E' },
+  refunded: { label: 'Reintegrado', ink: '#6B6270' }
+};
+const FULFILLMENT_LABEL = { pickup: 'Retiro en sucursal', shipping: 'Envío a domicilio' };
+
+/* Secuencia por modalidad: pickup no usa `packed` como paso visible,
+   shipping separa `packed` (embalado) de `shipped` (entregado a logística). */
+const FLOW = {
+  pickup: ['pending_payment', 'preparing', 'ready_for_pickup', 'delivered'],
+  shipping: ['pending_payment', 'preparing', 'packed', 'shipped', 'delivered']
+};
+
+/* ---------- Roles / acciones ---------- */
+const ROLE_LABEL = { admin: 'Administrador', encargado: 'Encargado', empleado: 'Empleado' };
+const ROLE_DESC = {
+  admin: 'Acceso total, incluida la gestión de usuarios y accesos.',
+  encargado: 'Opera pedidos, productos e inventario. Sin administración de usuarios.',
+  empleado: 'Opera la cola diaria de preparación y consulta. Sin configuraciones sensibles.'
+};
+const ROLE_ACTIONS = {
+  admin: ['approve_payment', 'reject_payment', 'start_preparing', 'mark_packed', 'mark_ready_for_pickup', 'mark_shipped', 'mark_delivered', 'cancel'],
+  encargado: ['approve_payment', 'reject_payment', 'start_preparing', 'mark_packed', 'mark_ready_for_pickup', 'mark_shipped', 'mark_delivered', 'cancel'],
+  empleado: ['start_preparing', 'mark_packed', 'mark_ready_for_pickup']
+};
+const ACTION_LABEL = {
+  approve_payment: 'Aprobar pago',
+  reject_payment: 'Rechazar pago',
+  start_preparing: 'Empezar a preparar',
+  mark_packed: 'Marcar empaquetado',
+  mark_ready_for_pickup: 'Marcar listo para retirar',
+  mark_shipped: 'Entregar a logística',
+  mark_delivered: 'Marcar entregado',
+  cancel: 'Cancelar pedido'
+};
+const ACTION_SHORT = {
+  approve_payment: 'Validar', reject_payment: 'Rechazar', start_preparing: 'Preparar',
+  mark_packed: 'Empacado', mark_ready_for_pickup: 'Listo', mark_shipped: 'Despachar',
+  mark_delivered: 'Entregar', cancel: 'Cancelar'
+};
+
+/* ---------- Reglas de pago ----------
+   Sólo el efectivo en sucursal puede avanzar con paymentStatus === 'pending'.
+   Transferencia / MP / tarjeta pendientes bloquean el inicio de preparación. */
+const paymentBlocksFulfilment = o => o.paymentStatus === 'pending' && o.paymentMethod !== 'cash';
+
+/* ---------- Motor de transiciones ---------- */
+function nextActionFor(o) {
+  if (o.orderStatus === 'pending_payment') return o.paymentMethod === 'cash' || o.paymentStatus === 'approved' ? 'start_preparing' : null;
+  if (o.orderStatus === 'preparing') return o.fulfillmentType === 'shipping' ? 'mark_packed' : 'mark_ready_for_pickup';
+  if (o.orderStatus === 'packed') return 'mark_shipped';
+  if (o.orderStatus === 'ready_for_pickup') return 'mark_delivered';
+  if (o.orderStatus === 'shipped') return 'mark_delivered';
+  return null;
+}
+
+/* Precondiciones de estado por acción (independientes del rol). */
+const STATE_GUARD = {
+  approve_payment: o => o.paymentStatus === 'pending' && o.paymentMethod === 'transfer' && o.orderStatus === 'pending_payment',
+  reject_payment: o => o.paymentStatus === 'pending' && o.paymentMethod === 'transfer' && o.orderStatus === 'pending_payment',
+  start_preparing: o => o.orderStatus === 'pending_payment',
+  mark_packed: o => o.orderStatus === 'preparing' && o.fulfillmentType === 'shipping',
+  mark_ready_for_pickup: o => o.orderStatus === 'preparing' && o.fulfillmentType === 'pickup',
+  mark_shipped: o => o.orderStatus === 'packed',
+  mark_delivered: o => o.orderStatus === 'ready_for_pickup' || o.orderStatus === 'shipped',
+  cancel: o => ['pending_payment', 'preparing', 'packed', 'ready_for_pickup'].indexOf(o.orderStatus) >= 0
+};
+
+/**
+ * Única fuente de autorización de la UI.
+ * @returns {{ok:boolean, reason?:string}}
+ */
+function canTransition(order, action, actor) {
+  if (!order || !action) return { ok: false, reason: 'Acción inexistente.' };
+  if ((ROLE_ACTIONS[actor.role] || []).indexOf(action) < 0)
+    return { ok: false, reason: 'El rol ' + ROLE_LABEL[actor.role] + ' no está autorizado a ' + ACTION_LABEL[action].toLowerCase() + '.' };
+  if (!(STATE_GUARD[action] || (() => false))(order))
+    return { ok: false, reason: 'La acción no corresponde al estado actual (' + STATUS_META[order.orderStatus].label + ').' };
+  if (action === 'start_preparing' && paymentBlocksFulfilment(order))
+    return { ok: false, reason: 'El pago por ' + PAYMENT_METHOD_LABEL[order.paymentMethod] + ' está pendiente: no puede iniciarse la preparación hasta que se acredite.' };
+  return { ok: true };
+}
+
+/**
+ * Devuelve el parche canónico de la transición, o null si no está permitida.
+ * Cada retorno representa UNA operación atómica (futuro RPC de Supabase).
+ */
+function transitionOrder(order, action, actor) {
+  const check = canTransition(order, action, actor);
+  if (!check.ok) return null;
+  switch (action) {
+    case 'approve_payment': return { paymentStatus: 'approved' };
+    case 'reject_payment': return { paymentStatus: 'rejected', orderStatus: 'cancelled' };
+    case 'start_preparing': return { orderStatus: 'preparing' };
+    case 'mark_packed': return { orderStatus: 'packed' };
+    case 'mark_ready_for_pickup': return { orderStatus: 'ready_for_pickup' };
+    case 'mark_shipped': return { orderStatus: 'shipped' };
+    case 'mark_delivered':
+      // Efectivo en sucursal: cobro + entrega en una sola operación.
+      return order.paymentMethod === 'cash' && order.paymentStatus === 'pending'
+        ? { orderStatus: 'delivered', paymentStatus: 'approved' }
+        : { orderStatus: 'delivered' };
+    case 'cancel': return { orderStatus: 'cancelled' };
+    default: return null;
+  }
+}
+
+/* ---------- Teléfono E.164 ---------- */
+function toE164(local) {
+  const d = String(local).replace(/\D/g, '');
+  if (!d) return '';
+  return '549' + d; // AR móvil: 54 + 9 + área + número
+}
+const prettyE164 = e => '+' + e;
+
+/* ---------- WhatsApp según ESTADO real ---------- */
+function waTemplate(o) {
+  const first = o.client.split(' ')[0];
+  const br = BR[o.branchId];
+  if (o.orderStatus === 'preparing' && o.paymentMethod === 'transfer' && o.paymentStatus === 'approved')
+    return { key: 'payment_approved', label: 'Avisar acreditación a ' + first, text: '¡Hola ' + first + '! Confirmamos la acreditación de tu transferencia por el pedido ' + o.id + '. Ya empezamos a armarlo y te avisamos en cuanto esté. ¡Gracias por comprar en MegaRegalos!' };
+  if (o.orderStatus === 'ready_for_pickup')
+    return { key: 'ready_for_pickup', label: 'Avisar retiro a ' + first, text: '¡Hola ' + first + '! Tu pedido ' + o.id + ' ya está listo para retirar en ' + br.name + ' (' + br.addr + '). Te esperamos de lunes a sábado de 9 a 20 h. ¡Gracias por comprar en MegaRegalos!' };
+  if (o.orderStatus === 'shipped')
+    return { key: 'shipped', label: 'Avisar despacho a ' + first, text: '¡Hola ' + first + '! Tu pedido ' + o.id + ' fue despachado y está en camino a ' + o.deliveryAddress + '. El repartidor te va a contactar al llegar. ¡Gracias por comprar en MegaRegalos!' };
+  return null;
+}
+
+/* ---------- Datos semilla migrados al contrato canónico ---------- */
+const SEED = [
+  { id: 'MR-10435', createdAt: '2026-08-27T13:10:00', client: 'Carla Medina', phone: '11 4102-7745', dni: '44.902.118', fulfillmentType: 'pickup', branchId: 'b2', deliveryAddress: null, paymentMethod: 'mercadopago', paymentStatus: 'approved', orderStatus: 'ready_for_pickup', shippingCost: 0, isGift: true, giftMessage: '¡Gracias por todo, Sole! Con cariño, Carla.', transferProofUrl: null, items: [['MR-JUG-004', 1]] },
+  { id: 'MR-10436', createdAt: '2026-08-27T14:05:00', client: 'Ramiro Ledesma', phone: '11 5877-2043', dni: '35.660.921', fulfillmentType: 'pickup', branchId: 'b1', deliveryAddress: null, paymentMethod: 'mercadopago', paymentStatus: 'approved', orderStatus: 'preparing', shippingCost: 0, isGift: false, giftMessage: '', transferProofUrl: null, items: [['MR-JUG-005', 1]] },
+  { id: 'MR-10434', createdAt: '2026-08-27T12:40:00', client: 'Diego Ferreyra', phone: '11 2298-6631', dni: '36.771.208', fulfillmentType: 'shipping', branchId: 'b3', deliveryAddress: 'Ruta 197 y Colectora 480, Don Torcuato', paymentMethod: 'card', paymentStatus: 'approved', orderStatus: 'shipped', shippingCost: 4900, isGift: false, giftMessage: '', transferProofUrl: null, items: [['MR-JUG-001', 1]] },
+  { id: 'MR-10433', createdAt: '2026-08-27T11:26:00', client: 'Mariana Duarte', phone: '11 3390-7752', dni: '29.554.010', fulfillmentType: 'pickup', branchId: 'b1', deliveryAddress: null, paymentMethod: 'mercadopago', paymentStatus: 'approved', orderStatus: 'preparing', shippingCost: 0, isGift: false, giftMessage: '', transferProofUrl: null, items: [['MR-JUG-004', 2], ['MR-JUG-002', 1]] },
+  { id: 'MR-10432', createdAt: '2026-08-27T10:02:00', client: 'Gonzalo Sena', phone: '11 6712-4409', dni: '33.087.145', fulfillmentType: 'shipping', branchId: 'b1', deliveryAddress: 'Av. Cazón 1244, Tigre', paymentMethod: 'transfer', paymentStatus: 'pending', orderStatus: 'pending_payment', shippingCost: 5400, isGift: false, giftMessage: '', transferProofUrl: 'fixture:comprobante-demo', items: [['MR-BAZ-001', 1], ['MR-JUG-004', 1]] },
+  { id: 'MR-10431', createdAt: '2026-08-27T09:15:00', client: 'Lucía Benítez', phone: '11 4478-2290', dni: '41.220.883', fulfillmentType: 'pickup', branchId: 'b4', deliveryAddress: null, paymentMethod: 'transfer', paymentStatus: 'pending', orderStatus: 'pending_payment', shippingCost: 0, isGift: true, giftMessage: 'Para Emma, ¡feliz cumple 7!', transferProofUrl: null, items: [['MR-JUG-005', 1], ['MR-JUG-002', 2]] },
+  { id: 'MR-10430', createdAt: '2026-08-27T08:48:00', client: 'Sofía Aguirre', phone: '11 5510-3388', dni: '40.115.667', fulfillmentType: 'pickup', branchId: 'b3', deliveryAddress: null, paymentMethod: 'cash', paymentStatus: 'pending', orderStatus: 'preparing', shippingCost: 0, isGift: false, giftMessage: '', transferProofUrl: null, items: [['MR-BAZ-001', 2]] },
+  { id: 'MR-10429', createdAt: '2026-08-26T19:05:00', client: 'Valeria Ojeda', phone: '11 5188-6621', dni: '32.470.559', fulfillmentType: 'shipping', branchId: 'b2', deliveryAddress: 'Belgrano 2210, Escobar', paymentMethod: 'mercadopago', paymentStatus: 'approved', orderStatus: 'packed', shippingCost: 4900, isGift: false, giftMessage: '', transferProofUrl: null, items: [['MR-JUG-003', 2], ['MR-JUG-002', 1]] },
+  { id: 'MR-10428', createdAt: '2026-08-26T18:40:00', client: 'Facundo Ríos', phone: '11 5623-8814', dni: '38.914.552', fulfillmentType: 'pickup', branchId: 'b1', deliveryAddress: null, paymentMethod: 'mercadopago', paymentStatus: 'approved', orderStatus: 'ready_for_pickup', shippingCost: 0, isGift: true, giftMessage: 'Para Mateo, ¡feliz cumple 6! De la tía Ana.', transferProofUrl: null, items: [['MR-JUG-003', 1], ['MR-JUG-001', 1]] },
+  { id: 'MR-10419', createdAt: '2026-08-25T17:22:00', client: 'Nicolás Paz', phone: '11 6034-9917', dni: '27.884.331', fulfillmentType: 'pickup', branchId: 'b5', deliveryAddress: null, paymentMethod: 'mercadopago', paymentStatus: 'approved', orderStatus: 'delivered', shippingCost: 0, isGift: false, giftMessage: '', transferProofUrl: null, items: [['MR-JUG-002', 1], ['MR-JUG-003', 1]] }
+];
+
+/* OrderItem normalizado: unitPrice = precio al momento de la compra. */
+const buildOrder = o => {
+  const items = o.items.map(([sku, quantity]) => {
+    const p = PRODUCTS[sku];
+    return { sku: p.sku, name: p.name, img: p.img, unitPrice: p.price, quantity, subtotal: p.price * quantity };
+  });
+  const subtotal = items.reduce((s, i) => s + i.subtotal, 0);
+  return Object.assign({}, o, { branchId: BRANCH.id, items, subtotal, total: subtotal + o.shippingCost, phoneE164: toE164(o.phone) });
+};
+
+/* ---------- Inventario (derivado; stock provisional — ver PSC-005) ---------- */
+const CRITICAL_STOCK = 5;
+const OPEN_PIPELINE = ['pending_payment', 'preparing', 'packed', 'ready_for_pickup'];
+function seedNum(str, mod) {
+  let h = 0;
+  for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) >>> 0;
+  return h % mod;
+}
+/* Físico: simulado y determinístico (sin backend todavía). Reservado: derivado de pedidos abiertos reales. */
+function buildInventory(orders, adj) {
+  adj = adj || {};
+  const rows = [];
+  Object.values(PRODUCTS).forEach(p => {
+    BRANCHES.filter(b => b.id !== 'all').forEach(b => {
+      /* Rango 0–27: cubre sin stock, stock crítico y disponible. */
+      const physical = Math.max(seedNum(p.sku + b.id, 28) + (adj[p.sku] || 0), 0);
+      const reserved = orders
+        .filter(o => o.branchId === b.id && OPEN_PIPELINE.indexOf(o.orderStatus) >= 0)
+        .reduce((n, o) => n + o.items.filter(i => i.sku === p.sku).reduce((m, i) => m + i.quantity, 0), 0);
+      rows.push({ sku: p.sku, name: p.name, img: p.img, category: p.category, branchId: b.id, branchName: b.name, physical, reserved, available: Math.max(physical - reserved, 0) });
+    });
+  });
+  return rows;
+}
+
+/* ---------- Clientes (derivados de Order, sin entidad propia — ver PSC-006) ---------- */
+function buildCustomers(orders) {
+  const byPhone = {};
+  orders.forEach(o => {
+    const c = byPhone[o.phone] || (byPhone[o.phone] = { phone: o.phone, branchCounts: {}, orders: [] });
+    c.orders.push(o);
+    c.branchCounts[o.branchId] = (c.branchCounts[o.branchId] || 0) + 1;
+    if (!c.lastAt || o.createdAt > c.lastAt) { c.lastAt = o.createdAt; c.name = o.client; c.dni = o.dni; }
+  });
+  return Object.values(byPhone).map(c => {
+    const branchId = Object.keys(c.branchCounts).sort((a, b) => c.branchCounts[b] - c.branchCounts[a])[0];
+    const totalSpent = c.orders.filter(o => o.orderStatus !== 'cancelled').reduce((s, o) => s + o.total, 0);
+    return {
+      phone: c.phone, name: c.name, dni: c.dni, branchId,
+      ordersCount: c.orders.length, totalSpent, lastAt: c.lastAt,
+      orders: c.orders.slice().sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+    };
+  }).sort((a, b) => b.lastAt.localeCompare(a.lastAt));
+}
+
+/* =========================================================================
+   Contratos de acceso · implementación DEMO local (localStorage).
+   Reemplazables por Supabase Auth + tabla `profiles` sin tocar la UI:
+   AuthService.signIn → supabase.auth.signInWithPassword
+   SessionService     → supabase.auth.getSession / onAuthStateChange
+   UserAccessService  → CRUD sobre `profiles` (name, email, role, status)
+   PermissionService  → mismas claves de permiso, validadas además por RLS
+   ========================================================================= */
+const DEMO_PASSWORD = 'MegaDemo2026!';
+const LS_USERS = 'mr.demo.users.v1';
+const LS_SESSION = 'mr.demo.session.v1';
+const LS_LOG = 'mr.demo.accesslog.v1';
+
+const store = {
+  read(k, fb) { try { const r = localStorage.getItem(k); return r ? JSON.parse(r) : fb; } catch (e) { return fb; } },
+  write(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+};
+
+/* Usuarios de demostración. No son credenciales reales. */
+const SEED_USERS = [
+  { id: 'u1', name: 'Sabrina Ríos', email: 'admin@megaregalos.demo', role: 'admin', status: 'active', password: DEMO_PASSWORD },
+  { id: 'u2', name: 'Martín Ocampo', email: 'encargado@megaregalos.demo', role: 'encargado', status: 'active', password: DEMO_PASSWORD },
+  { id: 'u3', name: 'Ayelén Costa', email: 'empleado@megaregalos.demo', role: 'empleado', status: 'active', password: DEMO_PASSWORD }
+];
+
+const USER_STATUS_META = {
+  active: { label: 'Activo', ink: '#3E7A12', bg: '#EEF7E6' },
+  inactive: { label: 'Inactivo', ink: '#B07800', bg: '#FFF6E0' },
+  revoked: { label: 'Acceso revocado', ink: '#B3261E', bg: '#FDECEA' }
+};
+
+const PERMISSIONS = {
+  admin: ['orders.operate', 'payments.approve', 'stock.view', 'customers.view', 'users.manage', 'config.manage'],
+  encargado: ['orders.operate', 'payments.approve', 'stock.view', 'customers.view'],
+  empleado: ['orders.operate', 'stock.view', 'customers.view']
+};
+
+const PermissionService = {
+  can(user, permission) { return !!user && (PERMISSIONS[user.role] || []).indexOf(permission) >= 0; },
+  canView(user, view) {
+    if (!user) return false;
+    if (view === 'usuarios') return this.can(user, 'users.manage');
+    if (view === 'config') return this.can(user, 'config.manage');
+    return true;
+  }
+};
+
+const UserAccessService = {
+  list() { const u = store.read(LS_USERS, null); if (!u || !u.length) { store.write(LS_USERS, SEED_USERS); return SEED_USERS.slice(); } return u; },
+  save(users) { store.write(LS_USERS, users); return users; },
+  log() { return store.read(LS_LOG, []); },
+  addLog(text) {
+    const l = [{ at: new Date().toISOString(), text }].concat(this.log()).slice(0, 30);
+    store.write(LS_LOG, l); return l;
+  }
+};
+
+const SessionService = {
+  get() { return store.read(LS_SESSION, null); },
+  set(user) {
+    const s = { id: user.id, name: user.name, email: user.email, role: user.role, at: new Date().toISOString() };
+    store.write(LS_SESSION, s); return s;
+  },
+  clear() { store.write(LS_SESSION, null); return null; }
+};
+
+const AUTH_ERROR = {
+  invalid: 'Email o contraseña incorrectos.',
+  inactive: 'Tu acceso está inactivo. Pedile al administrador que lo reactive.',
+  revoked: 'Tu acceso fue revocado. Contactá al administrador del local.',
+  email: 'Ingresá un email válido.',
+  password: 'Ingresá tu contraseña.'
+};
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+const AuthService = {
+  validate(email, password) {
+    if (!EMAIL_RE.test(String(email).trim())) return AUTH_ERROR.email;
+    if (!String(password).length) return AUTH_ERROR.password;
+    return null;
+  },
+  signIn(email, password) {
+    return new Promise(resolve => setTimeout(() => {
+      const u = UserAccessService.list().find(x => x.email.toLowerCase() === String(email).trim().toLowerCase());
+      if (!u || u.password !== password) return resolve({ ok: false, error: AUTH_ERROR.invalid });
+      if (u.status !== 'active') return resolve({ ok: false, error: AUTH_ERROR[u.status] });
+      resolve({ ok: true, session: SessionService.set(u) });
+    }, 480));
+  },
+  signInDemo(role) {
+    const u = UserAccessService.list().find(x => x.role === role);
+    return u ? this.signIn(u.email, u.password) : Promise.resolve({ ok: false, error: AUTH_ERROR.invalid });
+  },
+  signOut() { return SessionService.clear(); }
+};
+
+const LS_ADJ = 'mr.demo.stockadj.v1';
+const LS_MOV = 'mr.demo.movements.v1';
+
+/* Matriz visual determinística por SKU. Representación de QR para la demo:
+   no codifica datos reales ni se escanea con cámara. */
+function qrMatrix(text) {
+  const n = 21, cells = [];
+  let h = 2166136261;
+  for (let i = 0; i < text.length; i++) { h ^= text.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; }
+  let x = h || 12345;
+  const rnd = () => (x = (Math.imul(x, 1664525) + 1013904223) >>> 0) / 4294967296;
+  const box = (r, c, r0, c0) => r >= r0 && r < r0 + 7 && c >= c0 && c < c0 + 7;
+  const pat = (r, c, r0, c0) => { const d = Math.max(Math.abs(r - r0 - 3), Math.abs(c - c0 - 3)); return d <= 1 || d === 3; };
+  for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) {
+    let on;
+    if (box(r, c, 0, 0)) on = pat(r, c, 0, 0);
+    else if (box(r, c, 0, n - 7)) on = pat(r, c, 0, n - 7);
+    else if (box(r, c, n - 7, 0)) on = pat(r, c, n - 7, 0);
+    else on = rnd() > 0.52;
+    cells.push({ bg: on ? '#1E1A21' : '#ffffff' });
+  }
+  return cells;
+}
+
+const MOVE_META = {
+  in: { label: 'Entrada', ink: '#3E7A12', bg: '#EEF7E6', sign: 1 },
+  out: { label: 'Salida', ink: '#B3261E', bg: '#FDECEA', sign: -1 },
+  adjust: { label: 'Ajuste', ink: '#7B1FA2', bg: '#F3F0FA', sign: 0 }
+};
+
+const NAV = [
+  { key: 'inicio', label: 'Inicio', d: 'M4 11l8-6 8 6v8a1 1 0 01-1 1h-4v-6h-6v6H5a1 1 0 01-1-1z' },
+  { key: 'pedidos', label: 'Pedidos', d: 'M8 4h8v3H8zM6 7h12v13H6zM9 12h6M9 16h4' },
+  { key: 'stock', label: 'Productos & Stock', d: 'M3 8l9-4 9 4v8l-9 4-9-4zM3 8l9 4 9-4M12 12v8' },
+  { key: 'clientes', label: 'Clientes', d: 'M4 20a6 6 0 0112 0M10 4a4 4 0 110 8 4 4 0 010-8M17 20a5 5 0 00-3-4.6' },
+  { key: 'b2b', label: 'B2B Cotizaciones', d: 'M7 20v-7m5 7V5m5 15v-10M4 20h16' },
+  { key: 'promos', label: 'Promociones', d: 'M4 12l8-8 8 8-8 8zM9.5 9.5h.01' },
+  { key: 'usuarios', label: 'Usuarios y accesos', d: 'M4 20a6 6 0 0110.5-4M11 4a4 4 0 110 8 4 4 0 010-8M17 17h5M19.5 14.5v5' },
+  { key: 'config', label: 'Configuración', d: 'M12 15a3 3 0 100-6 3 3 0 000 6M20.4 13l1.4-.7-1.6-3.4-1.7.5-1.8-1L16.2 3h-3.9l-.5 1.7-1.8 1-1.7-.5L6.7 8.6 8.1 9.3v3.4l-1.4.7 1.6 3.4 1.7-.5 1.8 1 .5 2.7h3.9l.5-2.7 1.8-1 1.7.5 1.6-3.4-1.4-.7z' }
+];
+
+/* Reloj de demo explícito y configurable (nunca escondido en KPIs).
+   Vaciar la prop demoClock para usar el reloj real del sistema. */
+const DEMO_CLOCK = '2026-08-27T14:20:00';
+
+const DFMT = iso => new Date(iso).toLocaleDateString('es-AR', { day: '2-digit', month: 'short' });
+const TFMT = iso => new Date(iso).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
+const DAY = iso => String(iso).slice(0, 10);
+
+class Component extends DCLogic {
+  state = {
+    view: 'inicio',
+    session: SessionService.get(),
+    users: UserAccessService.list(),
+    accessLog: UserAccessService.log(),
+    email: '', password: '', showPass: false, authError: '', authLoading: false,
+    userQ: '', userForm: null, confirm: null,
+    adjust: store.read(LS_ADJ, {}),
+    movements: store.read(LS_MOV, []),
+    qrSku: null, scanStep: null, scanAction: null, scanQty: '1', scanReason: '', scanError: '',
+    vw: typeof window !== 'undefined' ? window.innerWidth : 1280,
+    tab: 'todos',
+    q: '',
+    collapsed: false,
+    openId: null,
+    fulfillment: 'all',
+    paymentMethod: 'all',
+    range: 'all',
+    orders: SEED.map(buildOrder),
+    stockView: 'productos',
+    stockQ: '',
+    stockCategory: 'all',
+    stockBranchFilter: 'all',
+    custQ: '',
+    openCustomer: null,
+    toast: null,
+    toastKind: 'ok'
+  };
+
+  /* Reloj único del sistema. demoClock explícito para conservar la demo histórica. */
+  systemNow() {
+    const c = this.props.demoClock !== undefined ? this.props.demoClock : DEMO_CLOCK;
+    const d = c ? new Date(c) : new Date();
+    return isNaN(d.getTime()) ? new Date() : d;
+  }
+
+  /* ---------- QR demo · movimientos de stock simulados ---------- */
+  startScan() {
+    this.setState({ scanStep: 'scanning', scanAction: null, scanQty: '1', scanReason: '', scanError: '' });
+    setTimeout(() => { if (this.state.scanStep === 'scanning') this.setState({ scanStep: 'found' }); }, 900);
+  }
+  closeScan() { this.setState({ scanStep: null, scanAction: null, scanError: '' }); }
+  confirmMovement(product, available) {
+    const s = this.state, kind = s.scanAction;
+    const qty = parseInt(s.scanQty, 10);
+    if (!kind) return;
+    if (isNaN(qty) || qty < 0) return this.setState({ scanError: 'Ingresá una cantidad válida.' });
+    if (!s.scanReason.trim()) return this.setState({ scanError: 'Ingresá un motivo.' });
+    const before = available;
+    const after = kind === 'adjust' ? qty : Math.max(before + MOVE_META[kind].sign * qty, 0);
+    const delta = after - before;
+    const adj = Object.assign({}, s.adjust, { [product.sku]: (s.adjust[product.sku] || 0) + delta });
+    const mov = [{
+      at: new Date().toISOString(), sku: product.sku, name: product.name, kind, qty,
+      reason: s.scanReason.trim(), before, after,
+      user: s.session ? s.session.name : 'Demo', role: s.session ? ROLE_LABEL[s.session.role] : ''
+    }].concat(s.movements).slice(0, 40);
+    store.write(LS_ADJ, adj); store.write(LS_MOV, mov);
+    this.setState({ adjust: adj, movements: mov, scanStep: null, scanAction: null, qrSku: null, scanError: '' });
+    this.toast('DEMO · ' + MOVE_META[kind].label + ' registrada · ' + product.name + ' · stock ' + before + ' → ' + after);
+  }
+
+  actor() {
+    const u = this.state.session;
+    return { role: u ? u.role : 'empleado', assignedBranchId: BRANCH.id, user: u };
+  }
+
+  /* ---------- Sesión ---------- */
+  enterSession(session) {
+    const log = UserAccessService.addLog('Inicio de sesión · ' + session.name + ' (' + ROLE_LABEL[session.role] + ')');
+    this.setState({ session, accessLog: log, authLoading: false, email: '', password: '', authError: '', view: 'inicio', users: UserAccessService.list() });
+    this.toast('Sesión iniciada · ' + session.name + ' · ' + ROLE_LABEL[session.role]);
+  }
+  onLogin(e) {
+    if (e && e.preventDefault) e.preventDefault();
+    const { email, password } = this.state;
+    const v = AuthService.validate(email, password);
+    if (v) { this.setState({ authError: v }); return; }
+    this.setState({ authLoading: true, authError: '' });
+    AuthService.signIn(email, password).then(r => {
+      if (!r.ok) { this.setState({ authLoading: false, authError: r.error }); return; }
+      this.enterSession(r.session);
+    });
+  }
+  demoLogin(role) {
+    this.setState({ authLoading: true, authError: '' });
+    AuthService.signInDemo(role).then(r => {
+      if (!r.ok) { this.setState({ authLoading: false, authError: r.error }); return; }
+      this.enterSession(r.session);
+    });
+  }
+  signOut() {
+    const s = this.state.session;
+    AuthService.signOut();
+    const log = s ? UserAccessService.addLog('Cierre de sesión · ' + s.name) : this.state.accessLog;
+    this.setState({ session: null, accessLog: log, openId: null, openCustomer: null, view: 'inicio', userForm: null, confirm: null });
+  }
+
+  /* ---------- Usuarios y accesos ---------- */
+  commitUsers(users, logText) {
+    UserAccessService.save(users);
+    const log = logText ? UserAccessService.addLog(logText) : this.state.accessLog;
+    this.setState({ users, accessLog: log, confirm: null });
+    const me = this.state.session;
+    const mine = me ? users.find(u => u.id === me.id) : null;
+    if (me && (!mine || mine.status !== 'active')) {
+      AuthService.signOut();
+      this.setState({ session: null, openId: null, openCustomer: null });
+      this.toast('Tu propio acceso dejó de estar activo: se cerró la sesión.', 'warn');
+      return;
+    }
+    if (logText) this.toast(logText);
+  }
+  setUserStatus(u, status) {
+    const verb = status === 'active' ? 'acceso activado' : status === 'inactive' ? 'acceso desactivado' : 'acceso revocado';
+    this.commitUsers(this.state.users.map(x => x.id === u.id ? Object.assign({}, x, { status }) : x), u.name + ' · ' + verb);
+  }
+  setUserRole(u, role) {
+    this.commitUsers(this.state.users.map(x => x.id === u.id ? Object.assign({}, x, { role }) : x), u.name + ' · rol cambiado a ' + ROLE_LABEL[role]);
+  }
+  resetUserAccess(u) {
+    this.commitUsers(this.state.users.map(x => x.id === u.id ? Object.assign({}, x, { status: 'active', password: DEMO_PASSWORD }) : x), u.name + ' · acceso demo restablecido');
+  }
+  invalidateUserSession(u) {
+    const me = this.state.session;
+    if (me && me.id === u.id) { this.signOut(); this.toast('Sesión cerrada.', 'warn'); return; }
+    this.setState({ accessLog: UserAccessService.addLog('Sesión simulada invalidada · ' + u.name), confirm: null });
+    this.toast('Sesión simulada de ' + u.name + ' invalidada.');
+  }
+  saveUserForm() {
+    const f = this.state.userForm;
+    if (!f) return;
+    const name = f.name.trim(), email = f.email.trim().toLowerCase();
+    if (!name) return this.setState({ userForm: Object.assign({}, f, { error: 'Ingresá el nombre.' }) });
+    if (!EMAIL_RE.test(email)) return this.setState({ userForm: Object.assign({}, f, { error: 'Ingresá un email válido.' }) });
+    if (this.state.users.some(u => u.email.toLowerCase() === email && u.id !== f.id)) return this.setState({ userForm: Object.assign({}, f, { error: 'Ya existe un usuario con ese email.' }) });
+    let users, msg;
+    if (f.mode === 'create') {
+      users = this.state.users.concat([{ id: 'u' + Date.now(), name, email, role: f.role, status: f.status, password: DEMO_PASSWORD }]);
+      msg = 'Usuario demo creado · ' + name + ' (' + ROLE_LABEL[f.role] + ')';
+    } else {
+      users = this.state.users.map(u => u.id === f.id ? Object.assign({}, u, { name, email, role: f.role, status: f.status }) : u);
+      msg = 'Usuario actualizado · ' + name;
+    }
+    this.setState({ userForm: null });
+    this.commitUsers(users, msg);
+  }
+
+  componentDidMount() {
+    this._key = e => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        if (this.searchEl) this.searchEl.focus();
+      }
+      if (e.key === 'Escape' && this.state.openId) this.closeDrawer();
+    };
+    window.addEventListener('keydown', this._key);
+    this._resize = () => {
+      if (this._raf) return;
+      this._raf = requestAnimationFrame(() => { this._raf = null; this.setState({ vw: window.innerWidth }); });
+    };
+    window.addEventListener('resize', this._resize);
+  }
+  componentWillUnmount() { window.removeEventListener('keydown', this._key); window.removeEventListener('resize', this._resize); if (this._t) clearTimeout(this._t); }
+
+  toast(msg, kind) {
+    if (this._t) clearTimeout(this._t);
+    this.setState({ toast: msg, toastKind: kind || 'ok' });
+    this._t = setTimeout(() => this.setState({ toast: null }), 4200);
+  }
+
+  openDrawer(id) { this._lastFocus = document.activeElement; this.setState({ view: 'pedidos', openId: id, openCustomer: null }); }
+  closeDrawer() {
+    this.setState({ openId: null });
+    if (this._lastFocus && this._lastFocus.focus) this._lastFocus.focus();
+  }
+  openCustomerDrawer(phone) { this._lastFocus = document.activeElement; this.setState({ openCustomer: phone, openId: null }); }
+  closeCustomerDrawer() {
+    this.setState({ openCustomer: null });
+    if (this._lastFocus && this._lastFocus.focus) this._lastFocus.focus();
+  }
+
+  /* Toda mutación de pedidos pasa por acá. */
+  run(order, action) {
+    const actor = this.actor();
+    const patch = transitionOrder(order, action, actor);
+    if (!patch) {
+      const why = canTransition(order, action, actor).reason;
+      this.toast('Acción no permitida: ' + why, 'warn');
+      return;
+    }
+    this.setState(s => ({ orders: s.orders.map(o => o.id === order.id ? Object.assign({}, o, patch) : o) }));
+    let msg = order.id + ' · ' + ACTION_LABEL[action];
+    if (patch.orderStatus) msg += ' → ' + STATUS_META[patch.orderStatus].label;
+    if (action === 'mark_delivered' && patch.paymentStatus === 'approved') msg += ' · efectivo cobrado';
+    this.toast(msg, action === 'reject_payment' || action === 'cancel' ? 'warn' : 'ok');
+  }
+
+  renderVals() {
+    const s = this.state;
+    const actor = this.actor();
+    const now = this.systemNow();
+    const todayKey = now.toISOString().slice(0, 10);
+    const orders = s.orders;
+
+    /* Alcance: admin usa el selector de vista; los roles restringidos, su asignación. */
+    const scopeId = BRANCH.id;
+    const scoped = orders;
+
+    const q = s.q.trim().toLowerCase();
+    const matches = o => !q || o.id.toLowerCase().includes(q) || o.client.toLowerCase().includes(q) || o.dni.replace(/\./g, '').includes(q.replace(/\./g, ''));
+    const inRange = o => {
+      if (s.range === 'all') return true;
+      if (s.range === 'today') return DAY(o.createdAt) === todayKey;
+      return (now - new Date(o.createdAt)) / 86400000 <= 7;
+    };
+    const base = scoped.filter(o => matches(o) && inRange(o)
+      && (s.fulfillment === 'all' || o.fulfillmentType === s.fulfillment)
+      && (s.paymentMethod === 'all' || o.paymentMethod === s.paymentMethod));
+
+    /* Empaque ve solamente su cola. */
+    const tabDefs = actor.role === 'empleado'
+      ? [['preparing', 'En preparación'], ['packed', 'Empaquetados'], ['ready_for_pickup', 'Listos p/ retiro']]
+      : [['todos', 'Todos'], ['pending_payment', 'Pago pendiente'], ['preparing', 'En preparación'], ['packed', 'Empaquetados'], ['ready_for_pickup', 'Listos p/ retiro'], ['shipped', 'Despachados'], ['delivered', 'Entregados']];
+    const validTab = tabDefs.some(t => t[0] === s.tab) ? s.tab : tabDefs[0][0];
+    const byTab = k => k === 'todos' ? base : base.filter(o => o.orderStatus === k);
+    const rowsRaw = byTab(validTab);
+
+    /* -------- Productos & Stock (stock provisional — ver PSC-005) -------- */
+    const inventoryAll = buildInventory(orders, s.adjust);
+    const stockTabs = [['productos', 'Productos'], ['inventario', 'Inventario'], ['qr', 'QR demo']].map(([k, label]) => {
+      const active = s.stockView === k;
+      return { label, go: () => this.setState({ stockView: k }), bg: active ? '#3B0A4A' : '#ffffff', ink: active ? '#ffffff' : '#4A4350', border: active ? '#3B0A4A' : '#E6E1EA' };
+    });
+    const categories = Array.from(new Set(Object.values(PRODUCTS).map(p => p.category)));
+    const sq = s.stockQ.trim().toLowerCase();
+    const stockStatus = available => available === 0
+      ? { label: 'Sin stock', ink: '#B3261E', bg: '#FDECEA' }
+      : available <= CRITICAL_STOCK
+        ? { label: 'Stock crítico', ink: '#B07800', bg: '#FFF6E0' }
+        : { label: 'Disponible', ink: '#3E7A12', bg: '#EEF7E6' };
+    const productRows = Object.values(PRODUCTS)
+      .filter(p => (!sq || p.name.toLowerCase().includes(sq) || p.sku.toLowerCase().includes(sq)) && (s.stockCategory === 'all' || p.category === s.stockCategory))
+      .map(p => {
+        const totalAvail = inventoryAll.filter(i => i.sku === p.sku).reduce((n, i) => n + i.available, 0);
+        const st = stockStatus(totalAvail);
+        return { sku: p.sku, name: p.name, category: p.category, price: ARS(p.price), stockTotal: totalAvail, bgImage: p.img ? 'url("' + p.img + '")' : 'none', stLabel: st.label, stInk: st.ink, stBg: st.bg };
+      });
+    const inventoryFiltered = inventoryAll.filter(i => s.stockBranchFilter === 'all' || i.branchId === s.stockBranchFilter);
+    const inventoryRows = inventoryFiltered.map(i => {
+      const st = stockStatus(i.available);
+      return Object.assign({}, i, { stLabel: st.label, stInk: st.ink, stBg: st.bg });
+    });
+    const criticalCount = inventoryFiltered.filter(i => i.available <= CRITICAL_STOCK).length;
+
+    /* -------- Clientes (derivados de Order — ver PSC-006) -------- */
+    const customersAll = buildCustomers(orders);
+    const cq = s.custQ.trim().toLowerCase();
+    const customerRows = customersAll
+      .filter(c => !cq || c.name.toLowerCase().includes(cq) || c.phone.includes(cq) || c.dni.replace(/\./g, '').includes(cq.replace(/\./g, '')))
+      .map(c => ({ name: c.name, phone: c.phone, branchName: BR[c.branchId].name, ordersCount: c.ordersCount, totalSpent: ARS(c.totalSpent), lastAtLabel: DFMT(c.lastAt), open: () => this.openCustomerDrawer(c.phone) }));
+    const cust = s.openCustomer ? customersAll.find(c => c.phone === s.openCustomer) : null;
+    let cv = {};
+    if (cust) {
+      cv = {
+        cvName: cust.name, cvPhone: cust.phone, cvDni: cust.dni,
+        cvOrdersCount: cust.ordersCount, cvTotalSpent: ARS(cust.totalSpent), cvBranchName: BR[cust.branchId].name,
+        cvOrders: cust.orders.map(o => ({
+          id: o.id, date: DFMT(o.createdAt) + ' · ' + TFMT(o.createdAt), total: ARS(o.total),
+          stLabel: STATUS_META[o.orderStatus].label, stInk: STATUS_META[o.orderStatus].ink, stBg: STATUS_META[o.orderStatus].bg,
+          open: () => { this.setState({ openCustomer: null }); this.openDrawer(o.id); }
+        }))
+      };
+    }
+
+    /* Selectores centralizados */
+    const count = st => scoped.filter(o => o.orderStatus === st).length;
+    const todayOrders = scoped.filter(o => DAY(o.createdAt) === todayKey);
+    const pendingTransfers = scoped.filter(o => o.paymentMethod === 'transfer' && o.paymentStatus === 'pending');
+    const inPrep = scoped.filter(o => o.orderStatus === 'preparing');
+    const openPipeline = scoped.filter(o => ['pending_payment', 'preparing', 'packed', 'ready_for_pickup'].indexOf(o.orderStatus) >= 0);
+    const billedToday = todayOrders.filter(o => o.paymentStatus === 'approved' && o.orderStatus !== 'cancelled').reduce((n, o) => n + o.total, 0);
+    const alertCount = pendingTransfers.length + inPrep.length;
+
+    const go = view => () => this.setState({ view, openId: null });
+    const jump = (tab, fulfillment) => () => this.setState({ view: 'pedidos', tab, fulfillment: fulfillment || 'all', range: 'all', openId: null });
+
+    const navItems = NAV.filter(n => PermissionService.canView(actor.user, n.key)).map(n => {
+      const active = n.key === s.view;
+      const badge = n.key === 'pedidos' ? openPipeline.length : 0;
+      return Object.assign({}, n, {
+        go: go(n.key), showLabel: !s.collapsed && s.vw >= 760,
+        bg: active ? '#7B1FA2' : 'transparent',
+        ink: active ? '#ffffff' : '#D8C4E2',
+        showBadge: !s.collapsed && s.vw >= 760 && badge > 0, badge
+      });
+    });
+
+    /* -------- Detalle -------- */
+    const d = s.openId ? orders.find(o => o.id === s.openId) : null;
+    let dv = {};
+    if (d) {
+      const na = nextActionFor(d);
+      const naCheck = na ? canTransition(d, na, actor) : { ok: false, reason: null };
+      const approve = canTransition(d, 'approve_payment', actor);
+      const cancelOk = canTransition(d, 'cancel', actor).ok;
+      const wa = waTemplate(d);
+      const flow = FLOW[d.fulfillmentType];
+      const proofFixture = d.transferProofUrl && String(d.transferProofUrl).indexOf('fixture:') === 0;
+      const blockedStart = d.orderStatus === 'pending_payment' && paymentBlocksFulfilment(d);
+      dv = {
+        dId: d.id, dClient: d.client, dPhone: d.phone, dDni: d.dni,
+        dWhen: DFMT(d.createdAt) + ' · ' + TFMT(d.createdAt),
+        dPayMethod: PAYMENT_METHOD_LABEL[d.paymentMethod],
+        dPayStatusLabel: 'pago ' + PAYMENT_STATUS_META[d.paymentStatus].label.toLowerCase(),
+        dStLabel: STATUS_META[d.orderStatus].label, dStInk: STATUS_META[d.orderStatus].ink, dStBg: STATUS_META[d.orderStatus].bg,
+        dDelivery: FULFILLMENT_LABEL[d.fulfillmentType],
+        dPlace: d.fulfillmentType === 'pickup' ? BR[d.branchId].name : d.deliveryAddress,
+        dPlaceSub: d.fulfillmentType === 'pickup' ? BR[d.branchId].addr : 'Prepara ' + BR[d.branchId].name,
+        dNeedsTransfer: d.paymentMethod === 'transfer' && d.paymentStatus === 'pending',
+        dProofTag: proofFixture ? 'comprobante de demostración' : 'sin comprobante adjunto',
+        dProofNote: proofFixture
+          ? 'Comprobante fixture de demo: no corresponde a un archivo real del cliente.'
+          : 'El cliente no adjuntó comprobante. Verificar el ingreso en la cuenta antes de aprobar.',
+        dCanApprove: approve.ok,
+        dPayLocked: !approve.ok,
+        dPayLockedNote: approve.reason || '',
+        dGift: d.isGift, dGiftMsg: d.giftMessage,
+        dItems: d.items.map(i => ({
+          name: i.name, sku: i.sku, bgImage: i.img ? 'url("' + i.img + '")' : 'none', qty: i.quantity,
+          unit: ARS(i.unitPrice), line: ARS(i.subtotal)
+        })),
+        dUnits: d.items.reduce((n, i) => n + i.quantity, 0) + ' unidades',
+        dSubtotal: ARS(d.subtotal), dTotal: ARS(d.total),
+        dShipLabel: d.fulfillmentType === 'pickup' ? 'Retiro en sucursal' : 'Envío',
+        dShipValue: d.shippingCost ? ARS(d.shippingCost) : 'Sin costo',
+        dFlowHint: 'Flujo ' + (d.fulfillmentType === 'pickup' ? 'retiro' : 'envío') + ': ' + flow.map(k => STATUS_META[k].label).join(' → '),
+        dCanAdvance: !!na && naCheck.ok,
+        dAdvanceLabel: na ? ACTION_LABEL[na] : '',
+        dAdvance: () => this.run(d, na),
+        dBlocked: !!na && !naCheck.ok,
+        dBlockedReason: naCheck.reason || '',
+        dApprove: () => this.run(d, 'approve_payment'),
+        dReject: () => this.run(d, 'reject_payment'),
+        dHasSecondary: cancelOk,
+        dSecondary: cancelOk ? [{ label: ACTION_LABEL.cancel, ink: '#B3261E', border: '#F1C9C4', go: () => this.run(d, 'cancel') }] : [],
+        dHasWa: !!wa,
+        dNoWa: !wa,
+        dWaLabel: wa ? wa.label : '',
+        dWaPhone: prettyE164(d.phoneE164),
+        dWa: wa ? 'https://wa.me/' + d.phoneE164 + '?text=' + encodeURIComponent(wa.text) : '',
+        dWaPreview: wa ? wa.text.slice(0, 96) + '…' : '',
+        dUnusedBlockedStart: blockedStart
+      };
+    }
+
+    /* -------- Usuarios y accesos (demo local) -------- */
+    const canManage = PermissionService.can(actor.user, 'users.manage');
+    const uq = s.userQ.trim().toLowerCase();
+    const userRows = s.users
+      .filter(u => !uq || u.name.toLowerCase().includes(uq) || u.email.toLowerCase().includes(uq))
+      .map(u => {
+        const st = USER_STATUS_META[u.status];
+        const isMe = !!actor.user && actor.user.id === u.id;
+        return {
+          id: u.id, name: u.name, email: u.email, role: u.role,
+          roleLabel: ROLE_LABEL[u.role], roleDesc: ROLE_DESC[u.role],
+          stLabel: st.label, stInk: st.ink, stBg: st.bg,
+          isMe, meTag: isMe ? 'Tu sesión' : '',
+          onRole: e => this.setUserRole(u, e.target.value),
+          edit: () => this.setState({ userForm: { mode: 'edit', id: u.id, name: u.name, email: u.email, role: u.role, status: u.status, error: '' } }),
+          toggleLabel: u.status === 'active' ? 'Desactivar' : 'Activar',
+          toggle: () => u.status === 'active'
+            ? this.setState({ confirm: { title: 'Desactivar acceso', body: u.name + ' no va a poder ingresar hasta que reactives su acceso.', cta: 'Desactivar', ok: () => this.setUserStatus(u, 'inactive') } })
+            : this.setUserStatus(u, 'active'),
+          canRevoke: u.status !== 'revoked',
+          revoke: () => this.setState({ confirm: { title: 'Revocar acceso', body: 'Se revoca el acceso de ' + u.name + '. Vas a poder restablecerlo después desde esta misma pantalla.', cta: 'Revocar acceso', ok: () => this.setUserStatus(u, 'revoked') } }),
+          reset: () => this.setState({ confirm: { title: 'Restablecer acceso demo', body: 'Se reactiva a ' + u.name + ' con la contraseña demo estándar.', cta: 'Restablecer', ok: () => this.resetUserAccess(u) } }),
+          invalidate: () => this.setState({ confirm: { title: 'Invalidar sesión', body: 'Se cierra la sesión simulada de ' + u.name + '.', cta: 'Invalidar sesión', ok: () => this.invalidateUserSession(u) } })
+        };
+      });
+    const logRows = s.accessLog.map((l, i) => ({
+      text: l.text,
+      when: new Date(l.at).toLocaleString('es-AR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }),
+      key: i
+    }));
+    const f = s.userForm;
+    const formVals = f ? {
+      formTitle: f.mode === 'create' ? 'Nuevo usuario demo' : 'Editar usuario',
+      formName: f.name, formEmail: f.email, formRole: f.role, formStatus: f.status,
+      formError: f.error || '', formHasError: !!f.error,
+      onFormName: e => this.setState({ userForm: Object.assign({}, f, { name: e.target.value }) }),
+      onFormEmail: e => this.setState({ userForm: Object.assign({}, f, { email: e.target.value }) }),
+      onFormRole: e => this.setState({ userForm: Object.assign({}, f, { role: e.target.value }) }),
+      onFormStatus: e => this.setState({ userForm: Object.assign({}, f, { status: e.target.value }) }),
+      saveForm: () => this.saveUserForm(),
+      closeForm: () => this.setState({ userForm: null })
+    } : {};
+    const cf = s.confirm;
+    const confirmVals = cf ? {
+      confirmTitle: cf.title, confirmBody: cf.body, confirmCta: cf.cta,
+      confirmOk: () => cf.ok(),
+      confirmCancel: () => this.setState({ confirm: null })
+    } : {};
+
+    const mob = s.vw < 760;
+    const narrow = s.vw < 1080;
+    /* -------- QR demo (simulado, sin cámara ni APIs) -------- */
+    const availOf = sku => inventoryAll.filter(i => i.sku === sku).reduce((n, i) => n + i.available, 0);
+    const qrProducts = Object.values(PRODUCTS).map(p => {
+      const av = availOf(p.sku);
+      const st = stockStatus(av);
+      return {
+        sku: p.sku, name: p.name, category: p.category, stock: String(av),
+        bgImage: p.img ? 'url("' + p.img + '")' : 'none',
+        stLabel: st.label, stInk: st.ink, stBg: st.bg,
+        go: () => this.setState({ qrSku: p.sku, scanStep: null, scanAction: null })
+      };
+    });
+    const qp = s.qrSku ? PRODUCTS[s.qrSku] : null;
+    const qpAvail = qp ? availOf(qp.sku) : 0;
+    const qpSt = qp ? stockStatus(qpAvail) : { label: '', ink: '', bg: '' };
+    const qrVals = qp ? {
+      qrName: qp.name, qrSkuLabel: qp.sku, qrCategory: qp.category,
+      qrCells: qrMatrix(qp.sku),
+      qrStock: String(qpAvail), qrStLabel: qpSt.label, qrStInk: qpSt.ink, qrStBg: qpSt.bg,
+      qrImage: qp.img ? 'url("' + qp.img + '")' : 'none',
+      closeQr: () => this.setState({ qrSku: null, scanStep: null }),
+      printQr: () => window.print(),
+      startScan: () => this.startScan(),
+      scanning: s.scanStep === 'scanning',
+      scanFound: s.scanStep === 'found',
+      scanOpen: !!s.scanStep,
+      closeScan: () => this.closeScan(),
+      scanActions: [
+        { key: 'in', label: 'Entrada', ink: '#3E7A12', bg: '#EEF7E6' },
+        { key: 'out', label: 'Salida', ink: '#B3261E', bg: '#FDECEA' },
+        { key: 'adjust', label: 'Ajuste', ink: '#7B1FA2', bg: '#F3F0FA' }
+      ].map(a => Object.assign({}, a, {
+        border: s.scanAction === a.key ? a.ink : '#E6E1EA',
+        go: () => this.setState({ scanAction: a.key, scanError: '', scanQty: a.key === 'adjust' ? String(qpAvail) : '1' })
+      })),
+      hasScanAction: !!s.scanAction,
+      scanActionLabel: s.scanAction ? MOVE_META[s.scanAction].label : '',
+      qtyLabel: s.scanAction === 'adjust' ? 'Stock contado (unidades)' : 'Cantidad (unidades)',
+      scanQty: s.scanQty, onScanQty: e => this.setState({ scanQty: e.target.value, scanError: '' }),
+      scanReason: s.scanReason, onScanReason: e => this.setState({ scanReason: e.target.value, scanError: '' }),
+      scanError: s.scanError, hasScanError: !!s.scanError,
+      confirmMovement: () => this.confirmMovement(qp, qpAvail)
+    } : {};
+    const movementRows = s.movements.map((m, i) => ({
+      key: i, name: m.name, sku: m.sku, reason: m.reason,
+      kindLabel: MOVE_META[m.kind].label, kindInk: MOVE_META[m.kind].ink, kindBg: MOVE_META[m.kind].bg,
+      qty: String(m.qty), delta: m.before + ' → ' + m.after,
+      who: m.user + (m.role ? ' · ' + m.role : ''),
+      when: new Date(m.at).toLocaleString('es-AR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })
+    }));
+
+    return {
+      isQrTab: s.stockView === 'qr',
+      qrProducts,
+      qrOpen: !!qp,
+      movementRows, hasMovements: movementRows.length > 0, noMovements: movementRows.length === 0,
+      ...qrVals,
+      mainPad: mob ? '14px 13px 34px' : '18px 22px 40px',
+      headPad: mob ? '9px 13px' : '11px 22px',
+      ctxPad: mob ? '10px 13px 0' : '10px 22px 0',
+      searchMin: mob ? '150px' : '260px',
+      loginCols: narrow ? '1fr' : '1.05fr 1fr',
+      loginAsidePad: mob ? '26px 20px' : narrow ? '34px 30px' : '44px 46px',
+      loginAsideGap: mob ? '16px' : '26px',
+      loginTitleSize: mob ? '25px' : '34px',
+      loginFormPad: mob ? '22px 18px 40px' : '40px 32px',
+      showUserText: !mob,
+      showDemoPanel: this.props.showDemoAccounts !== false,
+      isLogin: !actor.user,
+      isApp: !!actor.user,
+      email: s.email, password: s.password,
+      onEmail: e => this.setState({ email: e.target.value, authError: '' }),
+      onPassword: e => this.setState({ password: e.target.value, authError: '' }),
+      passType: s.showPass ? 'text' : 'password',
+      passToggleLabel: s.showPass ? 'Ocultar' : 'Mostrar',
+      togglePass: () => this.setState(p => ({ showPass: !p.showPass })),
+      authError: s.authError, hasAuthError: !!s.authError,
+      authLoading: s.authLoading,
+      submitLabel: s.authLoading ? 'Ingresando…' : 'Ingresar',
+      onLoginSubmit: e => this.onLogin(e),
+      demoAccounts: [
+        { role: 'admin', label: 'Entrar como Administrador', email: 'admin@megaregalos.demo', desc: ROLE_DESC.admin, bg: '#7B1FA2', ink: '#ffffff' },
+        { role: 'encargado', label: 'Entrar como Encargado', email: 'encargado@megaregalos.demo', desc: ROLE_DESC.encargado, bg: '#3B0A4A', ink: '#ffffff' },
+        { role: 'empleado', label: 'Entrar como Empleado', email: 'empleado@megaregalos.demo', desc: ROLE_DESC.empleado, bg: '#FFC629', ink: '#3B0A4A' }
+      ].map(a => Object.assign({}, a, { go: () => this.demoLogin(a.role) })),
+      demoPassword: DEMO_PASSWORD,
+      branchName: BRANCH.name, branchAddr: BRANCH.addr,
+
+      sessionName: actor.user ? actor.user.name : '',
+      sessionEmail: actor.user ? actor.user.email : '',
+      sessionRole: actor.user ? ROLE_LABEL[actor.user.role] : '',
+      sessionInitials: actor.user ? actor.user.name.split(' ').map(w => w[0]).slice(0, 2).join('') : '',
+      signOut: () => this.signOut(),
+
+      canManageUsers: canManage,
+      isUsers: s.view === 'usuarios' && canManage,
+      isDenied: s.view === 'usuarios' && !canManage,
+      userQ: s.userQ, onUserQ: e => this.setState({ userQ: e.target.value }),
+      userRows, usersEmpty: userRows.length === 0,
+      userCountLabel: userRows.length + ' de ' + s.users.length + ' usuarios',
+      newUser: () => this.setState({ userForm: { mode: 'create', id: null, name: '', email: '', role: 'empleado', status: 'active', error: '' } }),
+      logRows, hasLog: logRows.length > 0,
+      formOpen: !!f, ...formVals,
+      confirmOpen: !!cf, ...confirmVals,
+
+      sidebarW: mob ? '58px' : s.collapsed ? '72px' : '244px',
+      expanded: !s.collapsed && !mob,
+      toggleSidebar: () => this.setState(p => ({ collapsed: !p.collapsed })),
+      navItems,
+
+      q: s.q,
+      onSearch: e => this.setState({ q: e.target.value, view: 'pedidos', range: 'all' }),
+      searchRef: el => { this.searchEl = el; },
+      drawerRef: el => { if (el && this._focused !== s.openId) { this._focused = s.openId; el.focus(); } },
+
+      alertCount,
+      goAlerts: jump('pending_payment'),
+      roleLabel: ROLE_LABEL[actor.role],
+      scopeLabel: BRANCH.name,
+      scopeLocked: false,
+      clockTag: ((this.props.demoClock !== undefined ? this.props.demoClock : DEMO_CLOCK) ? 'Reloj demo · ' : 'Reloj del sistema · ') + now.toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' }),
+
+      isHome: s.view === 'inicio',
+      isOrders: s.view === 'pedidos',
+      isStock: s.view === 'stock',
+      isClientes: s.view === 'clientes',
+      isSoon: ['b2b', 'promos', 'config'].indexOf(s.view) >= 0,
+      soonTitle: (NAV.find(n => n.key === s.view) || {}).label || '',
+      goOrders: go('pedidos'),
+      todayLabel: now.toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) + ' · ' + now.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' }),
+
+      alerts: [
+        {
+          d: 'M12 8v5m0 3h.01M10.3 3.9L2.6 17a1.6 1.6 0 001.4 2.4h16a1.6 1.6 0 001.4-2.4L13.7 3.9a1.6 1.6 0 00-2.8 0z',
+          title: pendingTransfers.length + ' transferencias pendientes de validación',
+          sub: pendingTransfers.map(o => o.id + ' · ' + o.client).join(' · ') || 'Sin transferencias en espera',
+          cta: pendingTransfers.length ? 'Abrir ' + pendingTransfers[0].id : 'Ver pedidos',
+          go: pendingTransfers.length ? () => this.openDrawer(pendingTransfers[0].id) : jump('pending_payment'),
+          bg: '#FFF6E0', border: '#F2DFA6', ink: '#B07800'
+        },
+        {
+          d: 'M6 7h12l-1 13H7zM9 7V5a3 3 0 016 0v2',
+          title: inPrep.length + ' pedidos en preparación sin cerrar empaque',
+          sub: scopeId === 'all' ? 'En todas las sucursales' : 'En ' + BR[scopeId].name,
+          cta: 'Ver cola de empaque', go: jump('preparing'),
+          bg: '#F3F0FA', border: '#E3D6EB', ink: '#7B1FA2'
+        },
+        {
+          d: 'M3 7h11v10H3zM14 11h4l3 3v3h-7',
+          title: count('packed') + ' pedidos empaquetados esperando logística',
+          sub: 'Recién al entregarlos al transporte pasan a Despachado',
+          cta: 'Ver empaquetados', go: jump('packed', 'shipping'),
+          bg: '#FFF1D6', border: '#F2DFA6', ink: '#8A5A00'
+        }
+      ],
+
+      kpis: [
+        { label: 'Facturación de hoy', value: ARS(billedToday), sub: todayOrders.length + ' pedidos del día', ink: '#1E1A21' },
+        { label: 'Pago pendiente', value: String(count('pending_payment')), sub: pendingTransfers.length + ' por transferencia', ink: '#B07800' },
+        { label: 'En preparación', value: String(count('preparing')), sub: 'Cola de empaque activa', ink: '#7B1FA2' },
+        { label: 'Empaquetados', value: String(count('packed')), sub: 'Esperando logística', ink: '#8A5A00' },
+        { label: 'Listos para retiro', value: String(count('ready_for_pickup')), sub: 'Esperando al cliente en mostrador', ink: '#3E7A12' },
+        { label: 'Despachados', value: String(count('shipped')), sub: 'En poder del transporte', ink: '#1D7CB8' }
+      ],
+
+      funnel: [
+        ['pending_payment', '#FFC629'], ['preparing', '#C77BE0'], ['packed', '#F0A93C'],
+        ['ready_for_pickup', '#8CC63F'], ['shipped', '#6BB8E8']
+      ].map(([k, color]) => {
+        const n = count(k);
+        return { label: STATUS_META[k].label, n, color, w: Math.round((n / Math.max(scoped.length, 1)) * 100) + '%', go: jump(k) };
+      }),
+
+
+      tabs: tabDefs.map(([k, label]) => {
+        const active = validTab === k;
+        return {
+          label, n: byTab(k).length, go: () => this.setState({ tab: k }),
+          bg: active ? '#3B0A4A' : '#ffffff', ink: active ? '#ffffff' : '#4A4350',
+          border: active ? '#3B0A4A' : '#E6E1EA',
+          pillBg: active ? 'rgba(255,255,255,.18)' : '#F4F1F6', pillInk: active ? '#FFC629' : '#6B6270'
+        };
+      }),
+      deliveryFilters: [['all', 'Toda entrega'], ['pickup', 'Retiro en sucursal'], ['shipping', 'Envío a domicilio']].map(([k, label]) => ({
+        label, go: () => this.setState({ fulfillment: k }),
+        bg: s.fulfillment === k ? '#F3F0FA' : 'transparent', ink: s.fulfillment === k ? '#7B1FA2' : '#6B6270'
+      })),
+      payFilter: s.paymentMethod, onPayFilter: e => this.setState({ paymentMethod: e.target.value }),
+      dateFilter: s.range, onDateFilter: e => this.setState({ range: e.target.value }),
+      hasFilters: s.fulfillment !== 'all' || s.paymentMethod !== 'all' || s.range !== 'all' || !!q,
+      clearFilters: () => this.setState({ fulfillment: 'all', paymentMethod: 'all', range: 'all', q: '' }),
+      resultLabel: rowsRaw.length + ' de ' + scoped.length + ' pedidos' + (q ? ' · búsqueda “' + s.q.trim() + '”' : ''),
+      isEmpty: rowsRaw.length === 0,
+
+      rows: rowsRaw.map(o => {
+        const na = nextActionFor(o);
+        const approvable = canTransition(o, 'approve_payment', actor).ok;
+        let label = 'Ver', bg = '#F4F1F6', ink = '#4A4350', title = 'Abrir detalle', on = () => this.openDrawer(o.id);
+        if (o.paymentMethod === 'transfer' && o.paymentStatus === 'pending') {
+          label = approvable ? 'Validar' : 'Ver';
+          bg = approvable ? '#FFC629' : '#F4F1F6'; ink = approvable ? '#3B0A4A' : '#4A4350';
+          title = approvable ? 'Validar transferencia' : 'Abrir detalle (sin permiso de validación)';
+        } else if (na && canTransition(o, na, actor).ok) {
+          label = ACTION_SHORT[na]; bg = '#7B1FA2'; ink = '#ffffff'; title = ACTION_LABEL[na];
+          on = () => this.run(o, na);
+        }
+        const pm = PAYMENT_STATUS_META[o.paymentStatus];
+        return {
+          id: o.id, date: DFMT(o.createdAt), time: TFMT(o.createdAt), client: o.client, phone: o.phone,
+          open: () => this.openDrawer(o.id),
+          delShort: o.fulfillmentType === 'pickup' ? 'Retiro' : 'Envío',
+          delD: o.fulfillmentType === 'pickup' ? 'M4 9h16v11H4zM4 9l2-5h12l2 5M9 20v-6h6v6' : 'M3 7h11v10H3zM14 11h4l3 3v3h-7M7 20a1.6 1.6 0 100-3.2 1.6 1.6 0 000 3.2M18 20a1.6 1.6 0 100-3.2 1.6 1.6 0 000 3.2',
+          delInk: o.fulfillmentType === 'pickup' ? '#7B1FA2' : '#1D7CB8',
+          delBg: o.fulfillmentType === 'pickup' ? '#F3F0FA' : '#EDF4FB',
+          place: o.fulfillmentType === 'pickup' ? BR[o.branchId].name + ' · ' + BR[o.branchId].addr : o.deliveryAddress,
+          total: ARS(o.total), payLabel: pm.label, payInk: pm.ink, payMethod: PAYMENT_METHOD_LABEL[o.paymentMethod],
+          stLabel: STATUS_META[o.orderStatus].label, stInk: STATUS_META[o.orderStatus].ink, stBg: STATUS_META[o.orderStatus].bg,
+          rowBg: o.paymentStatus === 'pending' && o.paymentMethod === 'transfer' ? '#FFFDF5' : '#ffffff',
+          primary: on, primaryLabel: label, primaryBg: bg, primaryInk: ink, primaryTitle: title
+        };
+      }),
+
+      drawerOpen: !!d,
+      closeDrawer: () => this.closeDrawer(),
+      stop: e => e.stopPropagation(),
+      ...dv,
+
+      stockTabs, isProductsTab: s.stockView === 'productos', isInventoryTab: s.stockView === 'inventario',
+      stockQ: s.stockQ, onStockQ: e => this.setState({ stockQ: e.target.value }),
+      stockCategory: s.stockCategory, onStockCategory: e => this.setState({ stockCategory: e.target.value }), categories,
+      productRows, productsEmpty: productRows.length === 0,
+      criticalCount, inventoryRows,
+
+      custQ: s.custQ, onCustQ: e => this.setState({ custQ: e.target.value }),
+      customerRows, customerCountLabel: customerRows.length + ' clientes',
+      customersEmpty: customerRows.length === 0,
+      custDrawerOpen: !!cust, closeCustomerDrawer: () => this.closeCustomerDrawer(),
+      ...cv,
+
+      hasToast: !!s.toast, toast: s.toast,
+      toastDot: s.toastKind === 'warn' ? '#FFC629' : '#8CC63F',
+      closeToast: () => this.setState({ toast: null })
+    };
+  }
+}
+</script>
+</body>
+</html>
